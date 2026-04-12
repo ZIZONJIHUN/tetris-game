@@ -8,6 +8,15 @@ import {
   calcScore,
   calcLevel,
   calcSpeed,
+  startGame,
+  moveLeft,
+  moveRight,
+  softDrop,
+  hardDrop,
+  rotateClockwise,
+  rotateCounterClockwise,
+  hold,
+  tick,
 } from '../../game/engine'
 import { createBag } from '../../game/bag'
 import { SPAWN_X, SPAWN_Y, PIECE_ID } from '../../game/pieces'
@@ -311,5 +320,155 @@ describe('calcSpeed', () => {
 
   it('returns 100 for level 20 (still capped)', () => {
     expect(calcSpeed(20)).toBe(100)
+  })
+})
+
+// ─── Player Action Tests ───────────────────────────────────────────────────
+
+// Helper: creates a playing state
+function playingState() {
+  return startGame(createInitialState(createBag()))
+}
+
+describe('startGame', () => {
+  it('sets status to playing', () => {
+    const state = createInitialState(createBag())
+    expect(startGame(state).status).toBe('playing')
+  })
+})
+
+describe('moveLeft', () => {
+  it('decrements x when valid', () => {
+    const s = playingState()
+    expect(moveLeft(s).currentPiece.x).toBe(s.currentPiece.x - 1)
+  })
+  it('does not move when blocked by wall', () => {
+    const s = playingState()
+    // Move left until blocked
+    let cur = s
+    for (let i = 0; i < 10; i++) cur = moveLeft(cur)
+    const blocked = moveLeft(cur)
+    expect(blocked.currentPiece.x).toBe(cur.currentPiece.x)
+  })
+  it('returns state unchanged when not playing', () => {
+    const s = createInitialState(createBag()) // status = 'idle'
+    expect(moveLeft(s)).toBe(s)
+  })
+})
+
+describe('moveRight', () => {
+  it('increments x when valid', () => {
+    const s = playingState()
+    expect(moveRight(s).currentPiece.x).toBe(s.currentPiece.x + 1)
+  })
+  it('does not move when blocked by wall', () => {
+    const s = playingState()
+    let cur = s
+    for (let i = 0; i < 10; i++) cur = moveRight(cur)
+    const blocked = moveRight(cur)
+    expect(blocked.currentPiece.x).toBe(cur.currentPiece.x)
+  })
+})
+
+describe('softDrop', () => {
+  it('increments y when valid', () => {
+    const s = playingState()
+    expect(softDrop(s).currentPiece.y).toBe(s.currentPiece.y + 1)
+  })
+  it('adds 1 to score per cell dropped', () => {
+    const s = playingState()
+    const dropped = softDrop(s)
+    expect(dropped.score).toBe(s.score + 1)
+  })
+})
+
+describe('hardDrop', () => {
+  it('spawns next piece after drop', () => {
+    const s = playingState()
+    const dropped = hardDrop(s)
+    expect(dropped.currentPiece.type).toBe(s.nextPieces[0].type)
+  })
+  it('adds 2 * distance to score', () => {
+    const s = playingState()
+    const distance = s.ghostY - s.currentPiece.y
+    const dropped = hardDrop(s)
+    expect(dropped.score).toBeGreaterThanOrEqual(distance * 2)
+  })
+})
+
+describe('rotateClockwise', () => {
+  it('increments rotation mod 4', () => {
+    const s = playingState()
+    const rotated = rotateClockwise(s)
+    expect(rotated.currentPiece.rotation).toBe((s.currentPiece.rotation + 1) % 4)
+  })
+})
+
+describe('rotateCounterClockwise', () => {
+  it('decrements rotation mod 4', () => {
+    const s = playingState()
+    const rotated = rotateCounterClockwise(s)
+    expect(rotated.currentPiece.rotation).toBe((s.currentPiece.rotation + 3) % 4)
+  })
+})
+
+describe('hold', () => {
+  it('sets holdPiece to currentPiece type', () => {
+    const s = playingState()
+    const held = hold(s)
+    expect(held.holdPiece?.type).toBe(s.currentPiece.type)
+  })
+  it('swaps currentPiece with nextPieces[0] on first hold', () => {
+    const s = playingState()
+    const held = hold(s)
+    expect(held.currentPiece.type).toBe(s.nextPieces[0].type)
+  })
+  it('cannot hold twice in a row', () => {
+    const s = playingState()
+    const held = hold(s)
+    const heldAgain = hold(held)
+    expect(heldAgain.currentPiece.type).toBe(held.currentPiece.type)
+  })
+  it('swaps currentPiece with holdPiece on second hold', () => {
+    // hold → lock a piece → hold again to trigger swap
+    const s = playingState()
+    const held = hold(s) // hold first piece
+    const dropped = hardDrop(held) // lock to reset holdUsed
+    const swapped = hold(dropped)
+    expect(swapped.currentPiece.type).toBe(held.holdPiece?.type)
+  })
+})
+
+describe('tick', () => {
+  it('moves piece down by 1', () => {
+    const s = playingState()
+    expect(tick(s).currentPiece.y).toBe(s.currentPiece.y + 1)
+  })
+  it('spawns next piece when cannot move down', () => {
+    const s = playingState()
+    const atBottom = { ...s, currentPiece: { ...s.currentPiece, y: s.ghostY } }
+    const ticked = tick(atBottom)
+    expect(ticked.currentPiece.type).toBe(s.nextPieces[0].type)
+  })
+  it('sets status to over when new piece cannot spawn', () => {
+    const s = playingState()
+    // Fill all rows with partial rows (not full, so clearLines won't remove them)
+    // Columns 3-6 are filled — blocks all piece spawns at SPAWN_X=3 with rotation 0
+    const blockedRow = [0, 0, 0, 1, 1, 1, 1, 0, 0, 0]
+    const fullBoard = s.board.map(() => [...blockedRow])
+    // Place current piece at bottom of its valid range on the new board
+    // Find the lowest valid y on the new board
+    const { type, rotation, x } = s.currentPiece
+    let testY = s.currentPiece.y
+    while (isValidPosition(fullBoard, type, rotation, x, testY + 1)) {
+      testY++
+    }
+    const atBottom = { ...s, board: fullBoard, currentPiece: { ...s.currentPiece, y: testY } }
+    const ticked = tick(atBottom)
+    expect(ticked.status).toBe('over')
+  })
+  it('returns state unchanged when not playing', () => {
+    const s = createInitialState(createBag())
+    expect(tick(s)).toBe(s)
   })
 })

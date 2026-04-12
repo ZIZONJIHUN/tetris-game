@@ -163,3 +163,266 @@ export function calcLevel(lines: number): number {
 export function calcSpeed(level: number): number {
   return Math.max(100, 1000 - (level - 1) * 80)
 }
+
+// ────────────────────────────────────────────────────────────
+// lockAndSpawn (private helper)
+// ────────────────────────────────────────────────────────────
+function lockAndSpawn(state: GameState): GameState {
+  // 1. Lock current piece onto the board
+  const lockedState = lockPiece(state)
+
+  // 2. Clear completed lines
+  const { board: clearedBoard, linesCleared } = clearLines(lockedState.board)
+
+  // 3. Recalculate lines, level, score, speed
+  const newLines = state.lines + linesCleared
+  const newLevel = calcLevel(newLines)
+  const newScore = lockedState.score + calcScore(linesCleared, newLevel, 0)
+  const newSpeed = calcSpeed(newLevel)
+
+  // 4. Spawn next piece (reset to spawn position)
+  const newCurrentPiece: Piece = {
+    ...state.nextPieces[0],
+    rotation: 0,
+    x: SPAWN_X,
+    y: SPAWN_Y,
+  }
+
+  // 5. Pop a new piece for the queue
+  const { piece: newNextType, bag: newBag } = popPiece(state.pieceBag)
+  const newNextPieces: Piece[] = [
+    ...state.nextPieces.slice(1),
+    { type: newNextType, rotation: 0, x: SPAWN_X, y: SPAWN_Y },
+  ]
+
+  // 6. Check game over
+  const isOver = !isValidPosition(clearedBoard, newCurrentPiece.type, 0, SPAWN_X, SPAWN_Y)
+  const ghostY = isOver
+    ? SPAWN_Y
+    : calcGhostY(clearedBoard, newCurrentPiece.type, 0, SPAWN_X, SPAWN_Y)
+
+  return {
+    ...lockedState,
+    board: clearedBoard,
+    currentPiece: newCurrentPiece,
+    nextPieces: newNextPieces,
+    pieceBag: newBag,
+    ghostY,
+    score: newScore,
+    lines: newLines,
+    level: newLevel,
+    speed: newSpeed,
+    status: isOver ? 'over' : state.status,
+    flashRows: [],
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// startGame
+// ────────────────────────────────────────────────────────────
+export function startGame(state: GameState): GameState {
+  return { ...state, status: 'playing' }
+}
+
+// ────────────────────────────────────────────────────────────
+// moveLeft
+// ────────────────────────────────────────────────────────────
+export function moveLeft(state: GameState): GameState {
+  if (state.status !== 'playing') return state
+  const { currentPiece, board } = state
+  const newX = currentPiece.x - 1
+  if (!isValidPosition(board, currentPiece.type, currentPiece.rotation, newX, currentPiece.y)) {
+    return state
+  }
+  const newPiece = { ...currentPiece, x: newX }
+  return {
+    ...state,
+    currentPiece: newPiece,
+    ghostY: calcGhostY(board, newPiece.type, newPiece.rotation, newX, newPiece.y),
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// moveRight
+// ────────────────────────────────────────────────────────────
+export function moveRight(state: GameState): GameState {
+  if (state.status !== 'playing') return state
+  const { currentPiece, board } = state
+  const newX = currentPiece.x + 1
+  if (!isValidPosition(board, currentPiece.type, currentPiece.rotation, newX, currentPiece.y)) {
+    return state
+  }
+  const newPiece = { ...currentPiece, x: newX }
+  return {
+    ...state,
+    currentPiece: newPiece,
+    ghostY: calcGhostY(board, newPiece.type, newPiece.rotation, newX, newPiece.y),
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// softDrop
+// ────────────────────────────────────────────────────────────
+export function softDrop(state: GameState): GameState {
+  if (state.status !== 'playing') return state
+  const { currentPiece, board } = state
+  const newY = currentPiece.y + 1
+  if (!isValidPosition(board, currentPiece.type, currentPiece.rotation, currentPiece.x, newY)) {
+    return lockAndSpawn(state)
+  }
+  const newPiece = { ...currentPiece, y: newY }
+  return {
+    ...state,
+    currentPiece: newPiece,
+    score: state.score + 1,
+    ghostY: calcGhostY(board, newPiece.type, newPiece.rotation, newPiece.x, newY),
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// hardDrop
+// ────────────────────────────────────────────────────────────
+export function hardDrop(state: GameState): GameState {
+  if (state.status !== 'playing') return state
+  const { currentPiece, ghostY } = state
+  const distance = ghostY - currentPiece.y
+  const bonus = distance * 2
+  const droppedState: GameState = {
+    ...state,
+    currentPiece: { ...currentPiece, y: ghostY },
+    score: state.score + bonus,
+  }
+  return lockAndSpawn(droppedState)
+}
+
+// ────────────────────────────────────────────────────────────
+// rotateClockwise
+// ────────────────────────────────────────────────────────────
+export function rotateClockwise(state: GameState): GameState {
+  if (state.status !== 'playing') return state
+  const { currentPiece, board } = state
+  const newRotation = ((currentPiece.rotation + 1) % 4) as 0 | 1 | 2 | 3
+  const { x, y, type } = currentPiece
+
+  // Try original position first
+  if (isValidPosition(board, type, newRotation, x, y)) {
+    const newPiece = { ...currentPiece, rotation: newRotation }
+    return {
+      ...state,
+      currentPiece: newPiece,
+      ghostY: calcGhostY(board, type, newRotation, x, y),
+    }
+  }
+
+  // Wall kicks: try x offsets
+  for (const dx of [-1, 1, -2, 2]) {
+    const kickX = x + dx
+    if (isValidPosition(board, type, newRotation, kickX, y)) {
+      const newPiece = { ...currentPiece, rotation: newRotation, x: kickX }
+      return {
+        ...state,
+        currentPiece: newPiece,
+        ghostY: calcGhostY(board, type, newRotation, kickX, y),
+      }
+    }
+  }
+
+  return state
+}
+
+// ────────────────────────────────────────────────────────────
+// rotateCounterClockwise
+// ────────────────────────────────────────────────────────────
+export function rotateCounterClockwise(state: GameState): GameState {
+  if (state.status !== 'playing') return state
+  const { currentPiece, board } = state
+  const newRotation = ((currentPiece.rotation + 3) % 4) as 0 | 1 | 2 | 3
+  const { x, y, type } = currentPiece
+
+  // Try original position first
+  if (isValidPosition(board, type, newRotation, x, y)) {
+    const newPiece = { ...currentPiece, rotation: newRotation }
+    return {
+      ...state,
+      currentPiece: newPiece,
+      ghostY: calcGhostY(board, type, newRotation, x, y),
+    }
+  }
+
+  // Wall kicks: try x offsets
+  for (const dx of [-1, 1, -2, 2]) {
+    const kickX = x + dx
+    if (isValidPosition(board, type, newRotation, kickX, y)) {
+      const newPiece = { ...currentPiece, rotation: newRotation, x: kickX }
+      return {
+        ...state,
+        currentPiece: newPiece,
+        ghostY: calcGhostY(board, type, newRotation, kickX, y),
+      }
+    }
+  }
+
+  return state
+}
+
+// ────────────────────────────────────────────────────────────
+// hold
+// ────────────────────────────────────────────────────────────
+export function hold(state: GameState): GameState {
+  if (state.status !== 'playing' || state.holdUsed) return state
+
+  const { currentPiece, holdPiece, nextPieces, pieceBag, board } = state
+
+  let newCurrentPiece: Piece
+  let newHoldPiece: Piece
+  let newNextPieces: Piece[]
+  let newBag: PieceType[]
+
+  if (holdPiece === null) {
+    // No held piece: take from nextPieces[0]
+    newHoldPiece = { type: currentPiece.type, rotation: 0, x: SPAWN_X, y: SPAWN_Y }
+    newCurrentPiece = { type: nextPieces[0].type, rotation: 0, x: SPAWN_X, y: SPAWN_Y }
+    const { piece: newNextType, bag: updatedBag } = popPiece(pieceBag)
+    newBag = updatedBag
+    newNextPieces = [
+      ...nextPieces.slice(1),
+      { type: newNextType, rotation: 0, x: SPAWN_X, y: SPAWN_Y },
+    ]
+  } else {
+    // Swap currentPiece with holdPiece
+    newHoldPiece = { type: currentPiece.type, rotation: 0, x: SPAWN_X, y: SPAWN_Y }
+    newCurrentPiece = { type: holdPiece.type, rotation: 0, x: SPAWN_X, y: SPAWN_Y }
+    newNextPieces = nextPieces
+    newBag = pieceBag
+  }
+
+  const ghostY = calcGhostY(board, newCurrentPiece.type, 0, SPAWN_X, SPAWN_Y)
+
+  return {
+    ...state,
+    currentPiece: newCurrentPiece,
+    holdPiece: newHoldPiece,
+    holdUsed: true,
+    nextPieces: newNextPieces,
+    pieceBag: newBag,
+    ghostY,
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// tick
+// ────────────────────────────────────────────────────────────
+export function tick(state: GameState): GameState {
+  if (state.status !== 'playing') return state
+  const { currentPiece, board } = state
+  const newY = currentPiece.y + 1
+  if (!isValidPosition(board, currentPiece.type, currentPiece.rotation, currentPiece.x, newY)) {
+    return lockAndSpawn(state)
+  }
+  const newPiece = { ...currentPiece, y: newY }
+  return {
+    ...state,
+    currentPiece: newPiece,
+    ghostY: calcGhostY(board, newPiece.type, newPiece.rotation, newPiece.x, newY),
+  }
+}
