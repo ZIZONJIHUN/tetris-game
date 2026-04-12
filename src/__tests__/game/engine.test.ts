@@ -5,6 +5,9 @@ import {
   lockPiece,
   clearLines,
   calcGhostY,
+  calcScore,
+  calcLevel,
+  calcSpeed,
 } from '../../game/engine'
 import { createBag } from '../../game/bag'
 import { SPAWN_X, SPAWN_Y, PIECE_ID } from '../../game/pieces'
@@ -228,5 +231,85 @@ describe('calcGhostY', () => {
     // board[10] is filled, so y+1 = 10 → y = 9 is invalid, y = 8 is last valid.
     const ghostY = calcGhostY(board, 'I', 0, SPAWN_X, SPAWN_Y)
     expect(ghostY).toBe(8)
+  })
+})
+
+describe('calcScore', () => {
+  it('returns 0 for 0 lines cleared', () => {
+    expect(calcScore(0, 1, 0)).toBe(0)
+  })
+
+  it('returns 100 for 1 line at level 1', () => {
+    expect(calcScore(1, 1, 0)).toBe(100)
+  })
+
+  it('returns 300 for 2 lines at level 1', () => {
+    expect(calcScore(2, 1, 0)).toBe(300)
+  })
+
+  it('returns 500 for 3 lines at level 1', () => {
+    expect(calcScore(3, 1, 0)).toBe(500)
+  })
+
+  it('returns 800 for 4 lines at level 1', () => {
+    expect(calcScore(4, 1, 0)).toBe(800)
+  })
+
+  it('returns 2400 for 4 lines at level 3', () => {
+    expect(calcScore(4, 3, 0)).toBe(2400)
+  })
+
+  it('adds dropBonus to score', () => {
+    expect(calcScore(1, 1, 50)).toBe(150)
+    expect(calcScore(4, 2, 100)).toBe(1700)
+  })
+
+  it('returns dropBonus for 0 lines', () => {
+    expect(calcScore(0, 1, 50)).toBe(50)
+    expect(calcScore(0, 5, 123)).toBe(123)
+  })
+})
+
+describe('calcLevel', () => {
+  it('returns 1 for 0 lines', () => {
+    expect(calcLevel(0)).toBe(1)
+  })
+
+  it('returns 1 for 9 lines', () => {
+    expect(calcLevel(9)).toBe(1)
+  })
+
+  it('returns 2 for 10 lines', () => {
+    expect(calcLevel(10)).toBe(2)
+  })
+
+  it('returns 2 for 19 lines', () => {
+    expect(calcLevel(19)).toBe(2)
+  })
+
+  it('returns 3 for 20 lines', () => {
+    expect(calcLevel(20)).toBe(3)
+  })
+})
+
+describe('calcSpeed', () => {
+  it('returns 1000 for level 1', () => {
+    expect(calcSpeed(1)).toBe(1000)
+  })
+
+  it('returns 920 for level 2', () => {
+    expect(calcSpeed(2)).toBe(920)
+  })
+
+  it('returns 120 for level 12', () => {
+    expect(calcSpeed(12)).toBe(120)
+  })
+
+  it('returns 100 for level 13 (capped)', () => {
+    expect(calcSpeed(13)).toBe(100)
+  })
+
+  it('returns 100 for level 20 (still capped)', () => {
+    expect(calcSpeed(20)).toBe(100)
   })
 })

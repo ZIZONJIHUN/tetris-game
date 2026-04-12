@@ -134,3 +134,32 @@ export function clearLines(board: number[][]): { board: number[][]; linesCleared
     linesCleared,
   }
 }
+
+// ────────────────────────────────────────────────────────────
+// calcScore
+// ────────────────────────────────────────────────────────────
+export function calcScore(linesCleared: number, level: number, dropBonus: number): number {
+  const baseScores: Record<number, number> = {
+    0: 0,
+    1: 100,
+    2: 300,
+    3: 500,
+    4: 800,
+  }
+  const base = baseScores[linesCleared] ?? 0
+  return base * level + dropBonus
+}
+
+// ────────────────────────────────────────────────────────────
+// calcLevel
+// ────────────────────────────────────────────────────────────
+export function calcLevel(lines: number): number {
+  return Math.floor(lines / 10) + 1
+}
+
+// ────────────────────────────────────────────────────────────
+// calcSpeed
+// ────────────────────────────────────────────────────────────
+export function calcSpeed(level: number): number {
+  return Math.max(100, 1000 - (level - 1) * 80)
+}
