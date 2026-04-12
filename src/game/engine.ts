@@ -1,6 +1,6 @@
 import { GameState, Piece, PieceType } from './types'
 import { getPieceCells, PIECE_ID, SPAWN_X, SPAWN_Y } from './pieces'
-import { popPiece, refillBag } from './bag'
+import { popPiece } from './bag'
 
 // ────────────────────────────────────────────────────────────
 // createEmptyBoard
@@ -124,7 +124,9 @@ export function lockPiece(state: GameState): GameState {
 // clearLines
 // ────────────────────────────────────────────────────────────
 export function clearLines(board: number[][]): { board: number[][]; linesCleared: number } {
-  const surviving = board.filter(row => row.some(cell => cell === 0))
+  const surviving = board
+    .filter(row => row.some(cell => cell === 0))
+    .map(row => [...row])
   const linesCleared = board.length - surviving.length
   const emptyRows = Array.from({ length: linesCleared }, () => Array(10).fill(0))
   return {

@@ -196,6 +196,17 @@ describe('clearLines', () => {
     clearLines(board)
     expect(board[19]).toEqual(original)
   })
+
+  it('returned rows are not aliased to original rows', () => {
+    const board = createEmptyBoard()
+    board[19][0] = 1 // partial row — survives
+    const { board: newBoard } = clearLines(board)
+    // Different reference
+    expect(newBoard[newBoard.length - 1]).not.toBe(board[19])
+    // Mutation of returned board must not affect original
+    newBoard[newBoard.length - 1][0] = 99
+    expect(board[19][0]).toBe(1)
+  })
 })
 
 describe('calcGhostY', () => {
