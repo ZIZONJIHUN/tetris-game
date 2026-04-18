@@ -1,0 +1,163 @@
+<h2>1vs1 경쟁전 화면 레이아웃 — 어떻게 보여줄까요?</h2>
+<p class="subtitle">대전 중 상대방 화면을 어떻게 표시할지 선택해주세요</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0a1a;padding:12px;border-radius:8px 8px 0 0;">
+      <div style="display:flex;gap:6px;justify-content:center;align-items:flex-start;">
+        <!-- My board -->
+        <div style="text-align:center;">
+          <div style="color:#00f5ff;font-size:9px;margin-bottom:3px;text-shadow:0 0 6px #00f5ff;">나</div>
+          <div style="width:70px;height:100px;background:#111;border:2px solid #00f5ff44;box-shadow:0 0 10px #00f5ff22;display:grid;grid-template-columns:repeat(7,1fr);gap:1px;padding:2px;">
+            <div style="background:#ff00ff;box-shadow:0 0 3px #ff00ff;grid-column:3;grid-row:8;"></div>
+            <div style="background:#ff00ff;box-shadow:0 0 3px #ff00ff;grid-column:4;grid-row:8;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:1;grid-row:9;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:2;grid-row:9;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:3;grid-row:9;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:4;grid-row:9;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:5;grid-row:9;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:6;grid-row:9;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:1;grid-row:10;"></div>
+            <div style="background:#ff00ff;box-shadow:0 0 3px #ff00ff;grid-column:2;grid-row:10;"></div>
+            <div style="background:#ff00ff;box-shadow:0 0 3px #ff00ff;grid-column:3;grid-row:10;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:4;grid-row:10;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 3px #ff6600;grid-column:5;grid-row:10;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 3px #ff6600;grid-column:6;grid-row:10;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 3px #ff6600;grid-column:7;grid-row:10;"></div>
+          </div>
+          <div style="color:#00f5ff;font-size:11px;margin-top:3px;text-shadow:0 0 6px #00f5ff;">8,240</div>
+        </div>
+        <!-- VS -->
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:30px;">
+          <div style="color:#ff00ff;font-size:14px;font-weight:bold;text-shadow:0 0 10px #ff00ff;">VS</div>
+          <div style="color:#888;font-size:9px;margin-top:4px;">1:32</div>
+        </div>
+        <!-- Opponent board -->
+        <div style="text-align:center;">
+          <div style="color:#ff6600;font-size:9px;margin-bottom:3px;text-shadow:0 0 6px #ff6600;">상대</div>
+          <div style="width:70px;height:100px;background:#111;border:2px solid #ff660044;box-shadow:0 0 10px #ff660022;display:grid;grid-template-columns:repeat(7,1fr);gap:1px;padding:2px;">
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:2;grid-row:7;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:3;grid-row:7;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:1;grid-row:8;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:2;grid-row:8;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:3;grid-row:8;"></div>
+            <div style="background:#ff00ff;box-shadow:0 0 3px #ff00ff;grid-column:5;grid-row:8;"></div>
+            <div style="background:#ff00ff;box-shadow:0 0 3px #ff00ff;grid-column:6;grid-row:8;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:4;grid-row:8;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 3px #ff6600;grid-column:1;grid-row:9;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 3px #ff6600;grid-column:2;grid-row:9;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:3;grid-row:9;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:4;grid-row:9;"></div>
+            <div style="background:#ff00ff;box-shadow:0 0 3px #ff00ff;grid-column:5;grid-row:9;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 3px #ff6600;grid-column:1;grid-row:10;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 3px #ff6600;grid-column:2;grid-row:10;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:3;grid-row:10;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:4;grid-row:10;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:5;grid-row:10;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:6;grid-row:10;"></div>
+            <div style="background:#ff00ff;box-shadow:0 0 3px #ff00ff;grid-column:7;grid-row:10;"></div>
+          </div>
+          <div style="color:#ff6600;font-size:11px;margin-top:3px;text-shadow:0 0 6px #ff6600;">6,120</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. 나란히 (Split Screen)</h3>
+      <p>내 보드 + 상대 보드를 나란히 배치. 실시간으로 상대 상황을 확인. 가장 긴장감 있는 레이아웃.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0a1a;padding:12px;border-radius:8px 8px 0 0;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <!-- My large board -->
+        <div style="text-align:center;">
+          <div style="color:#00f5ff;font-size:9px;margin-bottom:2px;text-shadow:0 0 6px #00f5ff;">나 — 8,240점</div>
+          <div style="width:110px;height:90px;background:#111;border:2px solid #00f5ff44;box-shadow:0 0 10px #00f5ff22;display:grid;grid-template-columns:repeat(11,1fr);gap:1px;padding:2px;">
+            <div style="background:#ff00ff;box-shadow:0 0 3px #ff00ff;grid-column:5;grid-row:7;"></div>
+            <div style="background:#ff00ff;box-shadow:0 0 3px #ff00ff;grid-column:6;grid-row:7;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:1;grid-row:8;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:2;grid-row:8;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:3;grid-row:8;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:4;grid-row:8;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:5;grid-row:8;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:6;grid-row:8;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 3px #ff6600;grid-column:7;grid-row:8;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 3px #ff6600;grid-column:8;grid-row:8;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 3px #ff6600;grid-column:9;grid-row:8;"></div>
+          </div>
+        </div>
+        <!-- Opponent mini bar -->
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="color:#ff6600;font-size:9px;text-shadow:0 0 6px #ff6600;">상대</div>
+          <div style="width:80px;height:10px;background:#222;border:1px solid #ff660044;border-radius:2px;overflow:hidden;">
+            <div style="width:65%;height:100%;background:linear-gradient(90deg,#ff6600,#ff660088);"></div>
+          </div>
+          <div style="color:#ff6600;font-size:9px;text-shadow:0 0 6px #ff6600;">6,120</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. 내 화면 크게 + 상대 미니</h3>
+      <p>내 게임판을 크게, 상대 점수/진행도는 작게 표시. 플레이에 집중하면서 상대 점수만 확인.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0a1a;padding:12px;border-radius:8px 8px 0 0;">
+      <div style="display:flex;gap:6px;justify-content:center;align-items:flex-start;">
+        <!-- My large board -->
+        <div style="text-align:center;">
+          <div style="color:#00f5ff;font-size:9px;margin-bottom:2px;text-shadow:0 0 6px #00f5ff;">나</div>
+          <div style="width:85px;height:110px;background:#111;border:2px solid #00f5ff66;box-shadow:0 0 12px #00f5ff33;display:grid;grid-template-columns:repeat(8,1fr);gap:1px;padding:2px;">
+            <div style="background:#ff00ff;box-shadow:0 0 3px #ff00ff;grid-column:4;grid-row:8;"></div>
+            <div style="background:#ff00ff;box-shadow:0 0 3px #ff00ff;grid-column:5;grid-row:8;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:1;grid-row:9;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:2;grid-row:9;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:3;grid-row:9;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:4;grid-row:9;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:5;grid-row:9;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 3px #ffe600;grid-column:6;grid-row:9;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:1;grid-row:10;"></div>
+            <div style="background:#ff00ff;box-shadow:0 0 3px #ff00ff;grid-column:2;grid-row:10;"></div>
+            <div style="background:#ff00ff;box-shadow:0 0 3px #ff00ff;grid-column:3;grid-row:10;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 3px #00f5ff;grid-column:4;grid-row:10;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 3px #ff6600;grid-column:5;grid-row:10;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 3px #ff6600;grid-column:6;grid-row:10;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 3px #ff6600;grid-column:7;grid-row:10;"></div>
+          </div>
+          <div style="color:#00f5ff;font-size:11px;margin-top:3px;text-shadow:0 0 6px #00f5ff;">8,240</div>
+        </div>
+        <!-- Right panel: stats + opponent mini board -->
+        <div style="display:flex;flex-direction:column;gap:4px;padding-top:4px;">
+          <div style="color:#888;font-size:8px;letter-spacing:1px;">NEXT</div>
+          <div style="display:grid;grid-template-columns:repeat(4,10px);gap:1px;margin-bottom:6px;">
+            <div style="width:10px;height:10px;background:#ffe600;box-shadow:0 0 3px #ffe600;"></div>
+            <div style="width:10px;height:10px;background:#ffe600;box-shadow:0 0 3px #ffe600;"></div>
+            <div style="width:10px;height:10px;background:#ffe600;box-shadow:0 0 3px #ffe600;"></div>
+            <div style="width:10px;height:10px;background:#ffe600;box-shadow:0 0 3px #ffe600;"></div>
+          </div>
+          <div style="color:#888;font-size:8px;letter-spacing:1px;">TIME</div>
+          <div style="color:#ff00ff;font-size:12px;text-shadow:0 0 6px #ff00ff;margin-bottom:6px;">1:32</div>
+          <div style="color:#ff6600;font-size:8px;letter-spacing:1px;">상대</div>
+          <div style="width:50px;height:60px;background:#111;border:1px solid #ff660033;box-shadow:0 0 6px #ff660011;display:grid;grid-template-columns:repeat(5,1fr);gap:1px;padding:1px;">
+            <div style="background:#00f5ff;box-shadow:0 0 2px #00f5ff;grid-column:2;grid-row:4;"></div>
+            <div style="background:#00f5ff;box-shadow:0 0 2px #00f5ff;grid-column:3;grid-row:4;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 2px #ff6600;grid-column:1;grid-row:5;"></div>
+            <div style="background:#ff6600;box-shadow:0 0 2px #ff6600;grid-column:2;grid-row:5;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 2px #ffe600;grid-column:3;grid-row:5;"></div>
+            <div style="background:#ffe600;box-shadow:0 0 2px #ffe600;grid-column:4;grid-row:5;"></div>
+            <div style="background:#ff00ff;box-shadow:0 0 2px #ff00ff;grid-column:5;grid-row:5;"></div>
+          </div>
+          <div style="color:#ff6600;font-size:9px;text-shadow:0 0 4px #ff6600;">6,120</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. 내 화면 크게 + 상대 미니보드</h3>
+      <p>내 보드는 크게, 옆에 상대 미니 보드 실시간 표시. B보다 정보가 많고 A보다 내 화면이 넓음. 균형잡힌 레이아웃.</p>
+    </div>
+  </div>
+
+</div>

@@ -11,6 +11,14 @@ export const translations = {
     password: 'PASSWORD',
     start: 'START',
     back: '← Back',
+    // Menu
+    selectMode: 'SELECT MODE',
+    singleGame: 'SINGLE GAME',
+    battleMode: 'BATTLE MODE',
+    leaderboard: 'LEADERBOARD',
+    profile: 'PROFILE',
+    bestScore: 'BEST',
+    newBest: '🏆 NEW BEST!',
     // Game
     hold: 'HOLD',
     next: 'NEXT',
@@ -49,6 +57,14 @@ export const translations = {
     password: '비밀번호',
     start: '시작',
     back: '← 뒤로',
+    // Menu
+    selectMode: '모드 선택',
+    singleGame: '싱글 게임',
+    battleMode: '배틀 모드',
+    leaderboard: '리더보드',
+    profile: '내 전적',
+    bestScore: '최고',
+    newBest: '🏆 최고 기록!',
     // Game
     hold: '홀드',
     next: '다음',

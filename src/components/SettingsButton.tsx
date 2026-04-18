@@ -14,101 +14,83 @@ export default function SettingsButton() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsLoggedIn(!!session)
-    })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session)
-    })
+    supabase.auth.getSession().then(({ data: { session } }) => setIsLoggedIn(!!session))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setIsLoggedIn(!!session))
     return () => subscription.unsubscribe()
   }, [])
 
   async function handleLogout() {
     await signOut()
-    setOpen(false)
-    setConfirmLogout(false)
-    router.push('/')
-    router.refresh()
+    setOpen(false); setConfirmLogout(false)
+    router.push('/'); router.refresh()
   }
+
+  const langBtn = (code: 'en' | 'ko', label: string) => (
+    <button
+      onClick={() => setLang(code)}
+      className="flex-1 py-2 text-sm rounded border transition"
+      style={{
+        borderColor: lang === code ? 'var(--accent)' : 'var(--border)',
+        background: lang === code ? 'var(--accent-bg)' : 'white',
+        color: lang === code ? 'var(--accent)' : 'var(--text-secondary)',
+        fontWeight: lang === code ? '700' : '400',
+      }}
+    >
+      {label}
+    </button>
+  )
 
   return (
     <>
-      {/* 기어 버튼 */}
       <button
         onClick={() => { setOpen(true); setConfirmLogout(false) }}
-        className="fixed top-4 right-4 z-50 w-9 h-9 flex items-center justify-center text-gray-500 hover:text-gray-300 border border-gray-700 hover:border-gray-500 bg-[#0a0a1a]/80 backdrop-blur transition"
-        style={{ fontSize: '18px' }}
+        className="fixed top-4 right-4 z-50 w-9 h-9 flex items-center justify-center rounded border border-[var(--border)] bg-white hover:bg-[var(--bg)] shadow-sm transition"
+        style={{ color: 'var(--text-secondary)', fontSize: '16px' }}
         aria-label="Settings"
       >
         ⚙
       </button>
 
-      {/* 모달 오버레이 */}
       {open && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          onClick={() => setOpen(false)}
-        >
-          <div
-            className="bg-[#0d0d1f] border border-gray-700 p-6 w-72 flex flex-col gap-5"
-            style={{ boxShadow: '0 0 30px rgba(0,0,0,0.8)' }}
-            onClick={e => e.stopPropagation()}
-          >
-            <h2 className="text-gray-200 font-bold tracking-widest text-sm uppercase">
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)' }}
+          onClick={() => setOpen(false)}>
+          <div className="bg-white border border-[var(--border)] rounded-lg shadow-lg p-5 w-72 flex flex-col gap-4"
+            onClick={e => e.stopPropagation()}>
+
+            <h2 className="text-sm font-bold tracking-wider" style={{ color: 'var(--text)' }}>
               {t('settings')}
             </h2>
 
-            {/* 언어 */}
             <div className="flex flex-col gap-2">
-              <p className="text-gray-500 text-xs uppercase tracking-widest">{t('language')}</p>
+              <p className="text-xs uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>{t('language')}</p>
               <div className="flex gap-2">
-                <button
-                  onClick={() => setLang('en')}
-                  className={`flex-1 py-2 text-sm font-bold tracking-wider border transition ${
-                    lang === 'en'
-                      ? 'border-cyan-500 text-cyan-400 bg-cyan-500/10'
-                      : 'border-gray-700 text-gray-500 hover:border-gray-500 hover:text-gray-300'
-                  }`}
-                >
-                  English
-                </button>
-                <button
-                  onClick={() => setLang('ko')}
-                  className={`flex-1 py-2 text-sm font-bold tracking-wider border transition ${
-                    lang === 'ko'
-                      ? 'border-cyan-500 text-cyan-400 bg-cyan-500/10'
-                      : 'border-gray-700 text-gray-500 hover:border-gray-500 hover:text-gray-300'
-                  }`}
-                >
-                  한국어
-                </button>
+                {langBtn('en', 'English')}
+                {langBtn('ko', '한국어')}
               </div>
             </div>
 
-            {/* 로그아웃 */}
             {isLoggedIn && (
-              <div className="flex flex-col gap-2 border-t border-gray-800 pt-4">
+              <div className="flex flex-col gap-2 border-t border-[var(--border)] pt-4">
                 {!confirmLogout ? (
-                  <button
-                    onClick={() => setConfirmLogout(true)}
-                    className="py-2 border border-red-900 text-red-500 hover:bg-red-900/20 transition text-sm tracking-widest"
-                  >
+                  <button onClick={() => setConfirmLogout(true)}
+                    className="py-2 text-sm rounded border transition"
+                    style={{ borderColor: 'var(--danger)', color: 'var(--danger)', background: 'white' }}
+                    onMouseOver={e => (e.currentTarget.style.background = 'var(--danger-bg)')}
+                    onMouseOut={e => (e.currentTarget.style.background = 'white')}>
                     {t('logout')}
                   </button>
                 ) : (
                   <div className="flex flex-col gap-2">
-                    <p className="text-gray-400 text-xs text-center">{t('logoutConfirm')}</p>
+                    <p className="text-xs text-center" style={{ color: 'var(--text-secondary)' }}>{t('logoutConfirm')}</p>
                     <div className="flex gap-2">
-                      <button
-                        onClick={handleLogout}
-                        className="flex-1 py-2 border border-red-600 text-red-400 hover:bg-red-900/30 transition text-sm"
-                      >
+                      <button onClick={handleLogout}
+                        className="flex-1 py-2 text-sm rounded border transition"
+                        style={{ borderColor: 'var(--danger)', color: 'var(--danger)', background: 'white' }}>
                         {t('logout')}
                       </button>
-                      <button
-                        onClick={() => setConfirmLogout(false)}
-                        className="flex-1 py-2 border border-gray-700 text-gray-400 hover:border-gray-500 transition text-sm"
-                      >
+                      <button onClick={() => setConfirmLogout(false)}
+                        className="flex-1 py-2 text-sm rounded border transition"
+                        style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)', background: 'white' }}>
                         {t('cancel')}
                       </button>
                     </div>
@@ -117,12 +99,9 @@ export default function SettingsButton() {
               </div>
             )}
 
-            {/* 닫기 */}
-            <button
-              onClick={() => setOpen(false)}
-              className="text-gray-600 text-xs hover:text-gray-400 text-center"
-            >
-              ✕ close
+            <button onClick={() => setOpen(false)}
+              className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
+              닫기
             </button>
           </div>
         </div>

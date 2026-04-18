@@ -3,21 +3,16 @@ import Link from 'next/link'
 
 export default function PlayPage() {
   return (
-    <main className="min-h-screen bg-[#0a0a1a] flex flex-col items-center py-8">
-      <nav className="mb-6 flex items-center gap-6">
-        <Link href="/menu" className="text-gray-500 hover:text-gray-300 text-sm">← Menu</Link>
-        <Link href="/lobby" className="text-purple-400 hover:text-purple-300 text-sm tracking-wider">
-          Battle
-        </Link>
-        <Link href="/leaderboard" className="text-yellow-600 hover:text-yellow-400 text-sm tracking-wider">
-          Leaderboard
-        </Link>
-        <Link href="/profile" className="text-gray-500 hover:text-gray-300 text-sm">
-          Profile
+    <main className="min-h-screen flex flex-col items-center py-8" style={{ background: 'var(--bg)' }}>
+      <nav className="mb-6 flex items-center gap-1 self-start px-6">
+        <Link href="/menu"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded border border-[var(--border)] hover:bg-white transition"
+          style={{ color: 'var(--text-secondary)' }}>
+          ← Menu
         </Link>
       </nav>
       <SoloGame />
-      <p className="mt-6 text-gray-600 text-xs text-center">
+      <p className="mt-6 text-xs text-center" style={{ color: 'var(--text-muted)' }}>
         ← → Move &nbsp;|&nbsp; ↑/X Rotate &nbsp;|&nbsp; Z Counter-rotate &nbsp;|&nbsp; Space Hard Drop &nbsp;|&nbsp; C Hold
       </p>
     </main>

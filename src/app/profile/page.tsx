@@ -23,48 +23,64 @@ export default async function ProfilePage() {
   const bestScore = results && results.length > 0 ? Math.max(...results.map(r => r.my_score)) : 0
   const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0
 
+  const stats = [
+    { label: 'Games', value: totalGames },
+    { label: 'Wins', value: wins },
+    { label: 'Win Rate', value: `${winRate}%` },
+    { label: 'Best Score', value: bestScore.toLocaleString() },
+  ]
+
   return (
-    <main className="min-h-screen bg-[#0a0a1a] flex flex-col items-center py-12">
-      <div className="mb-8 flex items-center gap-4">
-        <Link href="/" className="text-gray-500 hover:text-gray-300 text-sm">← Back</Link>
-        <h1 className="text-purple-400 font-bold text-2xl tracking-widest"
-          style={{ textShadow: '0 0 10px #ff00ff' }}>
-          {profile.nickname}
-        </h1>
-      </div>
-
-      <div className="grid grid-cols-4 gap-4 mb-10 w-full max-w-2xl">
-        {[
-          { label: 'Games', value: totalGames, color: 'text-gray-300' },
-          { label: 'Wins', value: wins, color: 'text-cyan-400' },
-          { label: 'Win Rate', value: `${winRate}%`, color: 'text-purple-400' },
-          { label: 'Best Score', value: bestScore.toLocaleString(), color: 'text-yellow-400' },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="border border-gray-800 p-4 text-center">
-            <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">{label}</p>
-            <p className={`${color} font-bold text-xl`}>{value}</p>
-          </div>
-        ))}
-      </div>
-
+    <main className="min-h-screen flex flex-col items-center py-10 px-4" style={{ background: 'var(--bg)' }}>
       <div className="w-full max-w-2xl">
-        <h2 className="text-gray-400 text-sm uppercase tracking-widest mb-3">Recent Games</h2>
-        <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-4 mb-6">
+          <Link href="/menu"
+            className="px-3 py-1.5 text-xs rounded border border-[var(--border)] hover:bg-white transition"
+            style={{ color: 'var(--text-secondary)' }}>
+            ← Menu
+          </Link>
+          <h1 className="text-xl font-black tracking-widest" style={{ color: 'var(--text)' }}>
+            {profile.nickname}
+          </h1>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-4 gap-3 mb-6">
+          {stats.map(({ label, value }) => (
+            <div key={label} className="bg-white border border-[var(--border)] rounded-lg p-4 text-center shadow-sm">
+              <p className="text-xs uppercase tracking-widest mb-1" style={{ color: 'var(--text-muted)' }}>{label}</p>
+              <p className="text-xl font-bold tabular-nums" style={{ color: 'var(--text)' }}>{value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Recent games */}
+        <div className="bg-white border border-[var(--border)] rounded-lg shadow-sm overflow-hidden">
+          <div className="px-5 py-3 border-b border-[var(--border)]" style={{ background: 'var(--bg)' }}>
+            <p className="text-xs uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Recent Games</p>
+          </div>
           {results?.map(r => (
             <div key={r.id}
-              className="flex items-center justify-between px-4 py-2 border border-gray-800/50">
-              <span className={`text-sm font-bold ${r.is_win ? 'text-cyan-400' : 'text-red-400'}`}>
+              className="flex items-center justify-between px-5 py-3 border-b border-[var(--border)] last:border-0 hover:bg-[var(--bg)] transition">
+              <span className="text-sm font-bold w-12"
+                style={{ color: r.is_win ? 'var(--accent)' : 'var(--danger)' }}>
                 {r.is_win ? 'WIN' : 'LOSE'}
               </span>
-              <span className="text-gray-300 tabular-nums">{r.my_score.toLocaleString()}</span>
-              <span className="text-gray-600 text-xs">vs {r.opponent_score.toLocaleString()}</span>
-              <span className="text-gray-600 text-xs">
+              <span className="text-sm tabular-nums font-bold" style={{ color: 'var(--text)' }}>
+                {r.my_score.toLocaleString()}
+              </span>
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                vs {r.opponent_score.toLocaleString()}
+              </span>
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                 {new Date(r.played_at).toLocaleDateString()}
               </span>
             </div>
           ))}
           {totalGames === 0 && (
-            <p className="text-center text-gray-600 py-8">No games played yet.</p>
+            <p className="text-center py-10 text-sm" style={{ color: 'var(--text-muted)' }}>
+              No games played yet.
+            </p>
           )}
         </div>
       </div>

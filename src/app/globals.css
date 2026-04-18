@@ -1,28 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a1a;
-  --foreground: #e2e8f0;
+  --bg: #f5f3ef;
+  --surface: #ffffff;
+  --border: #e0ddd8;
+  --border-strong: #c8c4be;
+  --text: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #999999;
+  --accent: #5c8a3c;
+  --accent-hover: #4a7030;
+  --accent-bg: #f0f5ec;
+  --danger: #b03030;
+  --danger-bg: #fdf2f2;
+  --board-bg: #2a2d36;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
   --font-sans: var(--font-orbitron);
   --font-mono: var(--font-share-tech-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--text);
 }
 
-/* Orbitron(영문) + Black Han Sans(한글) 폴백 체인 */
 *, *::before, *::after {
   font-family: var(--font-orbitron), var(--font-black-han-sans), sans-serif;
 }
 
-/* 점수·숫자 표시에 Share Tech Mono 사용 */
 .tabular-nums {
   font-family: var(--font-share-tech-mono), monospace !important;
 }

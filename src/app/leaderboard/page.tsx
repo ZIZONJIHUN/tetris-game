@@ -12,6 +12,13 @@ type LeaderboardRow = {
 
 export const revalidate = 60
 
+const rankStyle = (i: number) => {
+  if (i === 0) return { color: '#b8860b', fontWeight: '700' }
+  if (i === 1) return { color: '#777777', fontWeight: '700' }
+  if (i === 2) return { color: '#b36a00', fontWeight: '700' }
+  return { color: 'var(--text-muted)', fontWeight: '400' }
+}
+
 export default async function LeaderboardPage() {
   const supabase = await createClient()
   const { data } = await supabase
@@ -23,40 +30,51 @@ export default async function LeaderboardPage() {
   const rows: LeaderboardRow[] = data ?? []
 
   return (
-    <main className="min-h-screen bg-[#0a0a1a] flex flex-col items-center py-12">
-      <div className="mb-8 flex items-center gap-4">
-        <Link href="/" className="text-gray-500 hover:text-gray-300 text-sm">← Back</Link>
-        <h1 className="text-yellow-400 font-bold text-2xl tracking-widest"
-          style={{ textShadow: '0 0 10px #ffe600' }}>
-          LEADERBOARD
-        </h1>
-      </div>
-
+    <main className="min-h-screen flex flex-col items-center py-10 px-4" style={{ background: 'var(--bg)' }}>
       <div className="w-full max-w-2xl">
-        <div className="grid grid-cols-5 text-xs text-gray-500 uppercase tracking-widest px-4 pb-2 border-b border-gray-800">
-          <span>#</span>
-          <span className="col-span-2">Player</span>
-          <span className="text-right">Best Score</span>
-          <span className="text-right">Win Rate</span>
+        <div className="flex items-center gap-4 mb-6">
+          <Link href="/menu"
+            className="px-3 py-1.5 text-xs rounded border border-[var(--border)] hover:bg-white transition"
+            style={{ color: 'var(--text-secondary)' }}>
+            ← Menu
+          </Link>
+          <h1 className="text-xl font-black tracking-widest" style={{ color: 'var(--text)' }}>
+            LEADERBOARD
+          </h1>
         </div>
-        {rows.map((row, i) => (
-          <div key={row.player_id}
-            className="grid grid-cols-5 px-4 py-3 border-b border-gray-800/50 hover:bg-gray-800/20 transition items-center">
-            <span className={`font-bold ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-orange-400' : 'text-gray-600'}`}>
-              {i + 1}
-            </span>
-            <span className="col-span-2 text-white">{row.nickname}</span>
-            <span className="text-right text-cyan-400 tabular-nums font-bold">
-              {Number(row.best_score).toLocaleString()}
-            </span>
-            <span className="text-right text-gray-400 text-sm">
-              {row.win_rate}% <span className="text-gray-600">({row.total_wins}W/{row.total_games}G)</span>
-            </span>
+
+        <div className="bg-white border border-[var(--border)] rounded-lg shadow-sm overflow-hidden">
+          <div className="grid grid-cols-5 px-5 py-3 border-b border-[var(--border)]"
+            style={{ background: 'var(--bg)' }}>
+            <span className="text-xs uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>#</span>
+            <span className="col-span-2 text-xs uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Player</span>
+            <span className="text-right text-xs uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Best</span>
+            <span className="text-right text-xs uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Win%</span>
           </div>
-        ))}
-        {rows.length === 0 && (
-          <p className="text-center text-gray-600 py-12">No records yet.</p>
-        )}
+
+          {rows.map((row, i) => (
+            <div key={row.player_id}
+              className="grid grid-cols-5 px-5 py-3.5 border-b border-[var(--border)] last:border-0 hover:bg-[var(--bg)] transition items-center">
+              <span className="text-sm" style={rankStyle(i)}>{i + 1}</span>
+              <span className="col-span-2 text-sm font-bold" style={{ color: 'var(--text)' }}>{row.nickname}</span>
+              <span className="text-right text-sm tabular-nums font-bold" style={{ color: 'var(--accent)' }}>
+                {Number(row.best_score).toLocaleString()}
+              </span>
+              <span className="text-right text-sm" style={{ color: 'var(--text-secondary)' }}>
+                {row.win_rate}%
+                <span className="text-xs ml-1" style={{ color: 'var(--text-muted)' }}>
+                  ({row.total_wins}W)
+                </span>
+              </span>
+            </div>
+          ))}
+
+          {rows.length === 0 && (
+            <p className="text-center py-12 text-sm" style={{ color: 'var(--text-muted)' }}>
+              No records yet.
+            </p>
+          )}
+        </div>
       </div>
     </main>
   )

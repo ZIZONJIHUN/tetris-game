@@ -1,0 +1,33 @@
+<h2>경쟁전 모드 — 어떤 방식으로 싸울까요?</h2>
+<p class="subtitle">테트리스 대전에서 상대를 어떻게 공격하고 이기는 방식을 선택해주세요</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>공격 블록 전송 (Garbage Lines)</h3>
+      <p>줄을 지우면 상대방 화면 아래에 쓰레기 줄(garbage lines)이 추가됩니다. 테트리스.io 표준 방식. 많이 지울수록 더 많이 공격. 콤보로 연속 공격 가능.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>점수 경쟁 (Score Battle)</h3>
+      <p>정해진 시간 동안 더 높은 점수를 낸 사람이 승리. 공격 없이 순수 실력 경쟁. 1분/2분/3분 라운드 선택 가능.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>배틀로얄 (Battle Royale)</h3>
+      <p>여러 명(4~8명)이 동시에 대전. 공격 블록 방식 + 마지막 생존자가 승리. 점점 방 크기가 좁아지는 압박 시스템.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="d" onclick="toggleSelect(this)">
+    <div class="letter">D</div>
+    <div class="content">
+      <h3>복합 모드 (A + C 모두)</h3>
+      <p>1vs1 공격 블록 모드와 배틀로얄 모두 구현. 로비에서 선택 가능. 가장 풍부하지만 개발 공수가 많음.</p>
+    </div>
+  </div>
+</div>

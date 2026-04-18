@@ -53,13 +53,13 @@ export const PIECE_ID: Record<PieceType, number> = {
 
 // 네온 사이버펑크 색상 팔레트
 export const PIECE_COLORS: Record<number, string> = {
-  1: '#00f5ff', // I
-  2: '#ffe600', // O
-  3: '#ff00ff', // T
-  4: '#00ff88', // S
-  5: '#ff3333', // Z
-  6: '#4488ff', // J
-  7: '#ff6600', // L
+  1: '#31c7ef', // I — sky blue
+  2: '#f7d308', // O — yellow
+  3: '#ad4d9c', // T — purple
+  4: '#42b642', // S — green
+  5: '#ef2029', // Z — red
+  6: '#5a65ad', // J — blue
+  7: '#ef7921', // L — orange
 }
 
 // 스폰 X 위치 (10칸 보드 기준, 4×4 행렬)
