@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
+import type { Provider } from '@supabase/supabase-js'
 
 export type AuthUser = {
   id: string
@@ -57,6 +58,21 @@ export async function signIn(email: string, password: string): Promise<AuthUser>
   if (profileError || !profile) throw new Error('Profile not found')
 
   return { id: authData.user.id, nickname: profile.nickname, isGuest: profile.is_guest }
+}
+
+/**
+ * OAuth 로그인 (Google / Facebook)
+ * 콜백 URL: /auth/callback
+ */
+export async function signInWithOAuth(provider: Provider): Promise<void> {
+  const supabase = createClient()
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  })
+  if (error) throw new Error(error.message)
 }
 
 /**
