@@ -2,11 +2,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signInAsGuest, signIn, signUp } from '@/lib/auth'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 type Mode = 'home' | 'guest' | 'login' | 'signup'
 
 export default function HomePage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [mode, setMode] = useState<Mode>('home')
   const [nickname, setNickname] = useState('')
   const [email, setEmail] = useState('')
@@ -79,20 +81,20 @@ export default function HomePage() {
             className="py-3 border border-cyan-500 text-cyan-400 font-bold tracking-widest hover:bg-cyan-500/20 transition"
             style={{ boxShadow: '0 0 12px rgba(0,245,255,0.2)' }}
           >
-            GUEST PLAY
+            {t('guestPlay')}
           </button>
           <button
             onClick={() => setMode('login')}
             className="py-3 border border-purple-500 text-purple-400 font-bold tracking-widest hover:bg-purple-500/20 transition"
             style={{ boxShadow: '0 0 12px rgba(255,0,255,0.2)' }}
           >
-            LOGIN
+            {t('login')}
           </button>
           <button
             onClick={() => setMode('signup')}
             className="py-3 border border-gray-600 text-gray-400 font-bold tracking-widest hover:bg-gray-700/30 transition"
           >
-            SIGN UP
+            {t('signUp')}
           </button>
         </div>
       )}
@@ -103,7 +105,7 @@ export default function HomePage() {
           <p className="text-gray-400 text-sm text-center">닉네임을 입력하세요</p>
           <input
             type="text"
-            placeholder="NICKNAME"
+            placeholder={t('nickname')}
             maxLength={16}
             value={nickname}
             onChange={e => setNickname(e.target.value)}
@@ -116,10 +118,10 @@ export default function HomePage() {
             disabled={loading || !nickname.trim()}
             className="py-3 border border-cyan-500 text-cyan-400 font-bold tracking-widest hover:bg-cyan-500/20 transition disabled:opacity-40"
           >
-            {loading ? '...' : 'START'}
+            {loading ? '...' : t('start')}
           </button>
           <button type="button" onClick={() => setMode('home')} className="text-gray-600 text-xs hover:text-gray-400">
-            ← 뒤로
+            {t('back')}
           </button>
         </form>
       )}
@@ -130,7 +132,7 @@ export default function HomePage() {
           <p className="text-gray-400 text-sm text-center">로그인</p>
           <input
             type="email"
-            placeholder="EMAIL"
+            placeholder={t('email')}
             value={email}
             onChange={e => setEmail(e.target.value)}
             className="bg-transparent border border-purple-500/50 text-purple-300 px-4 py-2 outline-none focus:border-purple-400 placeholder:text-gray-600 tracking-widest"
@@ -138,7 +140,7 @@ export default function HomePage() {
           />
           <input
             type="password"
-            placeholder="PASSWORD"
+            placeholder={t('password')}
             value={password}
             onChange={e => setPassword(e.target.value)}
             className="bg-transparent border border-purple-500/50 text-purple-300 px-4 py-2 outline-none focus:border-purple-400 placeholder:text-gray-600 tracking-widest"
@@ -149,10 +151,10 @@ export default function HomePage() {
             disabled={loading}
             className="py-3 border border-purple-500 text-purple-400 font-bold tracking-widest hover:bg-purple-500/20 transition disabled:opacity-40"
           >
-            {loading ? '...' : 'LOGIN'}
+            {loading ? '...' : t('login')}
           </button>
           <button type="button" onClick={() => setMode('home')} className="text-gray-600 text-xs hover:text-gray-400">
-            ← 뒤로
+            {t('back')}
           </button>
         </form>
       )}
@@ -163,7 +165,7 @@ export default function HomePage() {
           <p className="text-gray-400 text-sm text-center">회원가입</p>
           <input
             type="text"
-            placeholder="NICKNAME"
+            placeholder={t('nickname')}
             maxLength={16}
             value={nickname}
             onChange={e => setNickname(e.target.value)}
@@ -172,14 +174,14 @@ export default function HomePage() {
           />
           <input
             type="email"
-            placeholder="EMAIL"
+            placeholder={t('email')}
             value={email}
             onChange={e => setEmail(e.target.value)}
             className="bg-transparent border border-gray-600 text-gray-300 px-4 py-2 outline-none focus:border-gray-400 placeholder:text-gray-600 tracking-widest"
           />
           <input
             type="password"
-            placeholder="PASSWORD"
+            placeholder={t('password')}
             value={password}
             onChange={e => setPassword(e.target.value)}
             className="bg-transparent border border-gray-600 text-gray-300 px-4 py-2 outline-none focus:border-gray-400 placeholder:text-gray-600 tracking-widest"
@@ -190,10 +192,10 @@ export default function HomePage() {
             disabled={loading || !nickname.trim()}
             className="py-3 border border-gray-500 text-gray-300 font-bold tracking-widest hover:bg-gray-700/30 transition disabled:opacity-40"
           >
-            {loading ? '...' : 'SIGN UP'}
+            {loading ? '...' : t('signUp')}
           </button>
           <button type="button" onClick={() => setMode('home')} className="text-gray-600 text-xs hover:text-gray-400">
-            ← 뒤로
+            {t('back')}
           </button>
         </form>
       )}

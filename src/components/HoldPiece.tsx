@@ -2,11 +2,13 @@
 import { useEffect, useRef } from 'react'
 import { Piece } from '@/game/types'
 import { PIECE_COLORS, PIECE_ID, getPieceCells } from '@/game/pieces'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const CELL = 20
 
 export default function HoldPiece({ piece }: { piece: Piece | null }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const { t } = useLanguage()
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -28,7 +30,7 @@ export default function HoldPiece({ piece }: { piece: Piece | null }) {
 
   return (
     <div>
-      <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">Hold</p>
+      <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">{t('hold')}</p>
       <canvas ref={canvasRef} width={80} height={80} className="border border-cyan-500/20" />
     </div>
   )
