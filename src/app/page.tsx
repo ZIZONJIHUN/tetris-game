@@ -16,7 +16,7 @@ function OAuthButton({ provider, label, icon }: { provider: 'google' | 'facebook
     <button
       onClick={handle}
       disabled={loading}
-      className="w-full flex items-center justify-center gap-2.5 py-2.5 text-sm font-bold rounded border transition hover:bg-[var(--bg)] disabled:opacity-40"
+      className="w-full flex items-center justify-center gap-3 py-3 text-base font-bold rounded border transition hover:bg-[var(--bg)] disabled:opacity-40"
       style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
     >
       {icon}
@@ -88,17 +88,17 @@ export default function HomePage() {
     } finally { setLoading(false) }
   }
 
-  const inputClass = "w-full border border-[var(--border)] bg-white px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] placeholder:text-[var(--text-muted)] rounded"
+  const inputClass = "w-full border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--text)] outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] placeholder:text-[var(--text-muted)] rounded"
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: 'var(--bg)' }}>
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-black tracking-widest" style={{ color: 'var(--text)' }}>TETRIS</h1>
-          <p className="text-xs mt-1 tracking-widest" style={{ color: 'var(--text-muted)' }}>CLASSIC GAME</p>
+          <h1 className="text-5xl font-black tracking-widest" style={{ color: 'var(--text)' }}>TETRIS</h1>
+          <p className="text-sm mt-2 tracking-widest" style={{ color: 'var(--text-muted)' }}>CLASSIC GAME</p>
         </div>
 
-        <div className="bg-white border border-[var(--border)] rounded-lg shadow-sm p-6">
+        <div className="bg-white border border-[var(--border)] rounded-lg shadow-sm p-8">
           {mode === 'home' && (
             <div className="flex flex-col gap-3">
               {/* OAuth */}
@@ -113,12 +113,12 @@ export default function HomePage() {
 
               {/* 이메일 */}
               <button onClick={() => setMode('login')}
-                className="w-full py-2.5 text-sm font-bold rounded border transition hover:bg-[var(--bg)]"
+                className="w-full py-3 text-base font-bold rounded border transition hover:bg-[var(--bg)]"
                 style={{ borderColor: 'var(--border)', color: 'var(--text)' }}>
                 {t('login')}
               </button>
               <button onClick={() => setMode('signup')}
-                className="w-full py-2.5 text-sm font-bold rounded border transition hover:bg-[var(--bg)]"
+                className="w-full py-3 text-base font-bold rounded border transition hover:bg-[var(--bg)]"
                 style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
                 {t('signUp')}
               </button>
@@ -130,7 +130,7 @@ export default function HomePage() {
               </div>
 
               <button onClick={() => setMode('guest')}
-                className="w-full py-2.5 text-sm font-bold rounded transition"
+                className="w-full py-3 text-base font-bold rounded transition"
                 style={{ background: 'var(--accent)', color: '#fff' }}>
                 {t('guestPlay')}
               </button>
@@ -139,7 +139,7 @@ export default function HomePage() {
 
           {mode === 'guest' && (
             <form onSubmit={handleGuest} className="flex flex-col gap-3">
-              <p className="text-sm font-bold" style={{ color: 'var(--text)' }}>{t('guestPlay')}</p>
+              <p className="text-base font-bold" style={{ color: 'var(--text)' }}>{t('guestPlay')}</p>
               <div>
                 <input type="text" placeholder={`${t('nickname')} (최소 3글자)`} maxLength={16}
                   value={nickname} onChange={e => setNickname(e.target.value)}
@@ -148,7 +148,7 @@ export default function HomePage() {
               </div>
               {error && <p className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
               <button type="submit" disabled={loading || nickname.trim().length < 3}
-                className="w-full py-2.5 text-sm font-bold rounded transition disabled:opacity-40"
+                className="w-full py-3 text-base font-bold rounded transition disabled:opacity-40"
                 style={{ background: 'var(--accent)', color: '#fff' }}>
                 {loading ? '...' : t('start')}
               </button>
@@ -161,7 +161,7 @@ export default function HomePage() {
 
           {mode === 'login' && (
             <form onSubmit={handleLogin} className="flex flex-col gap-3">
-              <p className="text-sm font-bold" style={{ color: 'var(--text)' }}>{t('login')}</p>
+              <p className="text-base font-bold" style={{ color: 'var(--text)' }}>{t('login')}</p>
               <input type="email" placeholder={t('email')}
                 value={email} onChange={e => setEmail(e.target.value)}
                 className={inputClass} autoFocus />
@@ -170,7 +170,7 @@ export default function HomePage() {
                 className={inputClass} />
               {error && <p className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
               <button type="submit" disabled={loading}
-                className="w-full py-2.5 text-sm font-bold rounded transition disabled:opacity-40"
+                className="w-full py-3 text-base font-bold rounded transition disabled:opacity-40"
                 style={{ background: 'var(--accent)', color: '#fff' }}>
                 {loading ? '...' : t('login')}
               </button>
@@ -183,7 +183,7 @@ export default function HomePage() {
 
           {mode === 'signup' && (
             <form onSubmit={handleSignUp} className="flex flex-col gap-3">
-              <p className="text-sm font-bold" style={{ color: 'var(--text)' }}>{t('signUp')}</p>
+              <p className="text-base font-bold" style={{ color: 'var(--text)' }}>{t('signUp')}</p>
               <div>
                 <input type="text" placeholder={`${t('nickname')} (최소 3글자)`} maxLength={16}
                   value={nickname} onChange={e => setNickname(e.target.value)}
@@ -198,7 +198,7 @@ export default function HomePage() {
                 className={inputClass} />
               {error && <p className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
               <button type="submit" disabled={loading || nickname.trim().length < 3}
-                className="w-full py-2.5 text-sm font-bold rounded transition disabled:opacity-40"
+                className="w-full py-3 text-base font-bold rounded transition disabled:opacity-40"
                 style={{ background: 'var(--accent)', color: '#fff' }}>
                 {loading ? '...' : t('signUp')}
               </button>
