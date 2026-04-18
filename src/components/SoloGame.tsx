@@ -1,4 +1,5 @@
 'use client'
+import { useEffect, useRef, useState } from 'react'
 import { useGame } from '@/hooks/useGame'
 import { useKeyboard } from '@/hooks/useKeyboard'
 import TetrisBoard from './TetrisBoard'
@@ -6,10 +7,39 @@ import HoldPiece from './HoldPiece'
 import NextPieces from './NextPieces'
 import { useLanguage } from '@/contexts/LanguageContext'
 
+const BEST_SCORE_KEY = 'tetris_best_score'
+
 export default function SoloGame() {
   const { state, actions } = useGame()
   const { t } = useLanguage()
   useKeyboard(actions, state.status === 'playing')
+
+  const [bestScore, setBestScore] = useState(0)
+  const [isNewBest, setIsNewBest] = useState(false)
+  const prevStatus = useRef(state.status)
+
+  useEffect(() => {
+    const stored = parseInt(localStorage.getItem(BEST_SCORE_KEY) ?? '0', 10)
+    setBestScore(isNaN(stored) ? 0 : stored)
+  }, [])
+
+  useEffect(() => {
+    if (prevStatus.current === 'playing' && state.status === 'over') {
+      const stored = parseInt(localStorage.getItem(BEST_SCORE_KEY) ?? '0', 10)
+      const prev = isNaN(stored) ? 0 : stored
+      if (state.score > prev) {
+        localStorage.setItem(BEST_SCORE_KEY, String(state.score))
+        setBestScore(state.score)
+        setIsNewBest(true)
+      } else {
+        setIsNewBest(false)
+      }
+    }
+    if (state.status === 'idle') {
+      setIsNewBest(false)
+    }
+    prevStatus.current = state.status
+  }, [state.status, state.score])
 
   return (
     <div className="flex items-start gap-6 justify-center">
@@ -20,6 +50,12 @@ export default function SoloGame() {
           <p className="text-xs text-gray-400 uppercase tracking-widest">{t('score')}</p>
           <p className="text-cyan-400 font-bold text-xl tabular-nums" style={{ textShadow: '0 0 8px #00f5ff' }}>
             {state.score.toLocaleString()}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs text-gray-500 uppercase tracking-widest">{t('bestScore')}</p>
+          <p className="text-yellow-500 font-bold text-base tabular-nums">
+            {bestScore.toLocaleString()}
           </p>
         </div>
         <div>
@@ -56,6 +92,11 @@ export default function SoloGame() {
             <p className="text-red-400 font-bold text-2xl" style={{ textShadow: '0 0 10px #ff3333' }}>
               {t('gameOver')}
             </p>
+            {isNewBest && (
+              <p className="text-yellow-400 font-bold text-sm" style={{ textShadow: '0 0 8px #ffd700' }}>
+                {t('newBest')}
+              </p>
+            )}
             <p className="text-gray-300">{t('score')}: {state.score.toLocaleString()}</p>
             <button
               onClick={actions.reset}

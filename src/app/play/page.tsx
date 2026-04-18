@@ -5,7 +5,7 @@ export default function PlayPage() {
   return (
     <main className="min-h-screen bg-[#0a0a1a] flex flex-col items-center py-8">
       <nav className="mb-6 flex items-center gap-6">
-        <Link href="/" className="text-gray-500 hover:text-gray-300 text-sm">← Home</Link>
+        <Link href="/menu" className="text-gray-500 hover:text-gray-300 text-sm">← Menu</Link>
         <Link href="/lobby" className="text-purple-400 hover:text-purple-300 text-sm tracking-wider">
           Battle
         </Link>

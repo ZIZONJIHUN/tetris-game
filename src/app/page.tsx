@@ -23,7 +23,7 @@ export default function HomePage() {
     setError('')
     try {
       await signInAsGuest(nickname.trim())
-      router.push('/play')
+      router.push('/menu')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed')
     } finally {
@@ -37,7 +37,7 @@ export default function HomePage() {
     setError('')
     try {
       await signIn(email, password)
-      router.push('/play')
+      router.push('/menu')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed')
     } finally {
@@ -52,7 +52,7 @@ export default function HomePage() {
     setError('')
     try {
       await signUp(email, password, nickname.trim())
-      router.push('/play')
+      router.push('/menu')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed')
     } finally {
