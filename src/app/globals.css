@@ -17,9 +17,9 @@ body {
   color: var(--foreground);
 }
 
-/* Orbitron을 모든 요소에 강제 적용 */
+/* Orbitron(영문) + Black Han Sans(한글) 폴백 체인 */
 *, *::before, *::after {
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--font-orbitron), var(--font-black-han-sans), sans-serif;
 }
 
 /* 점수·숫자 표시에 Share Tech Mono 사용 */
