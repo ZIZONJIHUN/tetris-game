@@ -5,8 +5,6 @@ import { PIECE_COLORS, PIECE_ID, getPieceCells } from '@/game/pieces'
 
 const CELL = 30
 const MINI_CELL = 12
-const BOARD_BG = '#2a2d36'
-const GRID_COLOR = '#353840'
 
 type Props = {
   board: number[][]
@@ -16,12 +14,21 @@ type Props = {
   flashRows?: number[]
 }
 
-function drawCell(ctx: CanvasRenderingContext2D, c: number, r: number, colorHex: string, cellSize: number) {
+function drawCell(
+  ctx: CanvasRenderingContext2D,
+  c: number,
+  r: number,
+  colorHex: string,
+  cellSize: number,
+  glow = true,
+) {
   ctx.fillStyle = colorHex
+  if (glow) {
+    ctx.shadowBlur = 8
+    ctx.shadowColor = colorHex
+  }
   ctx.fillRect(c * cellSize + 1, r * cellSize + 1, cellSize - 2, cellSize - 2)
-  // subtle inner highlight
-  ctx.fillStyle = 'rgba(255,255,255,0.15)'
-  ctx.fillRect(c * cellSize + 1, r * cellSize + 1, cellSize - 2, 3)
+  ctx.shadowBlur = 0
 }
 
 export default function TetrisBoard({
@@ -38,11 +45,11 @@ export default function TetrisBoard({
     const ctx = canvas.getContext('2d')!
 
     // Background
-    ctx.fillStyle = BOARD_BG
+    ctx.fillStyle = '#0a0a1a'
     ctx.fillRect(0, 0, width, height)
 
     // Grid lines
-    ctx.strokeStyle = GRID_COLOR
+    ctx.strokeStyle = '#1a1a2e'
     ctx.lineWidth = 0.5
     for (let r = 0; r <= 20; r++) {
       ctx.beginPath(); ctx.moveTo(0, r * cellSize); ctx.lineTo(width, r * cellSize); ctx.stroke()
@@ -60,20 +67,21 @@ export default function TetrisBoard({
           ctx.fillStyle = '#ffffff'
           ctx.fillRect(c * cellSize + 1, r * cellSize + 1, cellSize - 2, cellSize - 2)
         } else {
-          drawCell(ctx, c, r, PIECE_COLORS[id], cellSize)
+          drawCell(ctx, c, r, PIECE_COLORS[id], cellSize, !mini)
         }
       }
     }
 
+    // Ghost piece and current piece (only in normal mode)
     if (!mini && currentPiece) {
       const color = PIECE_COLORS[PIECE_ID[currentPiece.type]]
 
-      // Ghost piece
+      // Ghost piece (20% opacity)
       if (ghostY !== undefined) {
-        ctx.globalAlpha = 0.25
+        ctx.globalAlpha = 0.2
         const ghostCells = getPieceCells(currentPiece.type, currentPiece.rotation, currentPiece.x, ghostY)
         for (const { r, c } of ghostCells) {
-          if (r >= 0) drawCell(ctx, c, r, color, cellSize)
+          if (r >= 0) drawCell(ctx, c, r, color, cellSize, false)
         }
         ctx.globalAlpha = 1
       }
@@ -81,7 +89,7 @@ export default function TetrisBoard({
       // Current piece
       const cells = getPieceCells(currentPiece.type, currentPiece.rotation, currentPiece.x, currentPiece.y)
       for (const { r, c } of cells) {
-        if (r >= 0) drawCell(ctx, c, r, color, cellSize)
+        if (r >= 0) drawCell(ctx, c, r, color, cellSize, true)
       }
     }
   }, [board, currentPiece, ghostY, mini, flashRows, cellSize, width, height])
@@ -91,8 +99,8 @@ export default function TetrisBoard({
       ref={canvasRef}
       width={width}
       height={height}
-      className="border border-[#3d4150]"
-      style={{ borderRadius: '2px' }}
+      className="border border-cyan-500/30"
+      style={{ boxShadow: mini ? 'none' : '0 0 20px rgba(0,245,255,0.1)' }}
     />
   )
 }
