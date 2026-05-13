@@ -3,6 +3,7 @@ import { Orbitron, Share_Tech_Mono, Black_Han_Sans } from 'next/font/google'
 import './globals.css'
 import { LanguageProvider } from '@/contexts/LanguageContext'
 import { KeybindingsProvider } from '@/contexts/KeybindingsContext'
+import { UserProfileProvider } from '@/contexts/UserProfileContext'
 import SettingsButton from '@/components/SettingsButton'
 
 const orbitron = Orbitron({ variable: '--font-orbitron', subsets: ['latin'], weight: ['400', '700', '900'] })
@@ -20,8 +21,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${orbitron.className} min-h-full flex flex-col`}>
         <LanguageProvider>
           <KeybindingsProvider>
-            <SettingsButton />
-            {children}
+            <UserProfileProvider>
+              <SettingsButton />
+              {children}
+            </UserProfileProvider>
           </KeybindingsProvider>
         </LanguageProvider>
       </body>
