@@ -36,12 +36,20 @@ export const translations = {
     time: 'TIME',
     gameOver: 'GAME OVER',
     retry: 'RETRY',
+    // Sidebar
+    navMenu: 'Menu',
+    navPlay: 'Play',
+    navBattle: 'Battle',
+    navBoard: 'Board',
+    navProfile: 'Profile',
+    rank: 'Rank',
     // Battle
     win: 'WIN',
     lose: 'LOSE',
     draw: 'DRAW',
     waitingOpponent: 'Waiting for opponent...',
     backToLobby: 'Back to Lobby',
+    opponent: 'Opponent',
     // Lobby
     randomMatch: 'RANDOM MATCH',
     createRoom: 'CREATE ROOM',
@@ -100,12 +108,20 @@ export const translations = {
     time: '시간',
     gameOver: '게임 오버',
     retry: '다시하기',
+    // Sidebar
+    navMenu: '메뉴',
+    navPlay: '플레이',
+    navBattle: '배틀',
+    navBoard: '리더보드',
+    navProfile: '프로필',
+    rank: '랭크',
     // Battle
     win: '승리',
     lose: '패배',
     draw: '무승부',
     waitingOpponent: '상대방을 기다리는 중...',
     backToLobby: '로비로 돌아가기',
+    opponent: '상대',
     // Lobby
     randomMatch: '랜덤 매칭',
     createRoom: '방 만들기',
