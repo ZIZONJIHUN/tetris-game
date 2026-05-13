@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { GameState } from '@/game/types'
 import { createBag } from '@/game/bag'
 import {
@@ -36,7 +36,7 @@ export function useGame() {
     return () => cancelAnimationFrame(rafRef.current)
   }, [loop])
 
-  const actions = {
+  const actions = useMemo(() => ({
     start: () => setState(s => startGame(s)),
     reset: () => setState(makeInitialState),
     moveLeft: () => setState(s => moveLeft(s)),
@@ -46,7 +46,7 @@ export function useGame() {
     rotateClockwise: () => setState(s => rotateClockwise(s)),
     rotateCounterClockwise: () => setState(s => rotateCounterClockwise(s)),
     hold: () => setState(s => hold(s)),
-  }
+  }), [])
 
   return { state, actions }
 }

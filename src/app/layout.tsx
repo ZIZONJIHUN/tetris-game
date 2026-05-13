@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Orbitron, Share_Tech_Mono, Black_Han_Sans } from 'next/font/google'
 import './globals.css'
 import { LanguageProvider } from '@/contexts/LanguageContext'
+import { KeybindingsProvider } from '@/contexts/KeybindingsContext'
 import SettingsButton from '@/components/SettingsButton'
 
 const orbitron = Orbitron({ variable: '--font-orbitron', subsets: ['latin'], weight: ['400', '700', '900'] })
@@ -18,8 +19,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${orbitron.variable} ${shareTechMono.variable} ${blackHanSans.variable} h-full antialiased`}>
       <body className={`${orbitron.className} min-h-full flex flex-col`}>
         <LanguageProvider>
-          <SettingsButton />
-          {children}
+          <KeybindingsProvider>
+            <SettingsButton />
+            {children}
+          </KeybindingsProvider>
         </LanguageProvider>
       </body>
     </html>
