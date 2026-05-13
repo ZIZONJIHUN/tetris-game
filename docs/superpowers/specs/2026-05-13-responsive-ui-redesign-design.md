@@ -1,111 +1,111 @@
-# Responsive UI Redesign — Design Spec
+# 반응형 UI 리디자인 — 설계 문서
 
-**Date:** 2026-05-13
-**Scope:** All pages (`/`, `/menu`, `/play`, `/lobby`, `/battle/[roomId]`, `/leaderboard`, `/profile`, `/auth/set-nickname`)
-**Target form factor:** Desktop only (≥1280px wide nominally; min ~1024px should still work)
+**작성일:** 2026-05-13
+**스코프:** 모든 페이지 (`/`, `/menu`, `/play`, `/lobby`, `/battle/[roomId]`, `/leaderboard`, `/profile`, `/auth/set-nickname`)
+**타깃 폼 팩터:** 데스크탑 전용 (기준 ≥1280px 너비, 최소 ~1024px 까지 동작)
 
-## Problem
+## 문제 정의
 
-Current UI uses hardcoded pixel sizes throughout and does not adapt to viewport. On a typical 1080p+ display, the game page leaves roughly 30–40% of the vertical space empty, side panels sit far from the board, and the top horizontal nav clashes with the game area. Every page repeats the same pattern: `min-h-screen flex flex-col items-center py-X` with a fixed-width inner content block and no responsive sizing.
+현재 UI는 전반에 걸쳐 픽셀 단위로 하드코딩되어 있고, 뷰포트에 적응하지 않는다. 일반적인 1080p 이상의 디스플레이에서 게임 페이지의 세로 공간 중 30~40% 가 비어 있고, 좌우 패널은 보드와 멀리 떨어져 있으며, 상단 가로 nav 가 게임 영역과 충돌한다. 모든 페이지가 같은 패턴 (`min-h-screen flex flex-col items-center py-X` + 고정 너비 내부 블록 + 반응형 사이징 없음) 을 반복하고 있다.
 
-Specifically:
+구체적으로:
 
-- `TetrisBoard` uses `CELL = 30`, giving a fixed 300×600 board with no scaling
-- `HoldPiece` / `NextPieces` use 80px-wide fixed canvases
-- `SoloGame` / `BattleGame` use `w-24` (96px) fixed side panels with `gap-6` between them and the board
-- No use of `vh`, `clamp()`, or media queries for layout sizing anywhere
-- Nav links (`Menu | Battle | Leaderboard | Profile`) appear inline above the board on `/play`, but as a `← Back` link + page title on other pages — inconsistent
-- Labels are mixed Korean (홀드/점수/최고/레벨/라인) and English (NEXT/Score/Time/Level)
-- Key-binding help is a single line of plain text at page bottom
+- `TetrisBoard` 는 `CELL = 30` 으로 300×600 고정 보드, 스케일링 없음
+- `HoldPiece` / `NextPieces` 는 80px 너비 고정 캔버스
+- `SoloGame` / `BattleGame` 은 `w-24` (96px) 고정 좌우 패널, 보드와 `gap-6` 간격
+- 레이아웃 사이징에 `vh`, `clamp()`, 미디어 쿼리가 어디에도 사용되지 않음
+- nav 링크 (`Menu | Battle | Leaderboard | Profile`) 가 `/play` 에서는 보드 위에 인라인으로 표시되지만, 다른 페이지에서는 `← Back` 링크 + 타이틀로 표시 — 일관성 없음
+- 라벨이 한국어 (홀드/점수/최고/레벨/라인) 와 영어 (NEXT/Score/Time/Level) 가 혼재
+- 키 바인딩 안내는 페이지 하단에 단순 텍스트 한 줄
 
-## Decisions
+## 결정 사항
 
-| Decision | Choice |
+| 결정 항목 | 선택 |
 |---|---|
-| Target | Desktop only |
-| Scope | All pages |
-| Board sizing | Hybrid stepped breakpoints (viewport-height media queries) |
-| Page layout | Persistent left sidebar nav + content area |
-| Sidebar content | Logo + user mini-profile + nav links |
+| 타깃 | 데스크탑 전용 |
+| 스코프 | 전체 페이지 |
+| 보드 사이징 | Hybrid Stepped Breakpoints (뷰포트 높이 미디어 쿼리) |
+| 페이지 레이아웃 | 좌측 고정 사이드바 nav + 콘텐츠 영역 |
+| 사이드바 구성 | 로고 + 사용자 미니 프로필 + nav 링크 |
 
 ## App Shell
 
-A new persistent `AppShell` component wraps all authenticated pages (`/menu`, `/play`, `/lobby`, `/battle/[roomId]`, `/leaderboard`, `/profile`).
+새로운 `AppShell` 컴포넌트가 인증 후 모든 페이지 (`/menu`, `/play`, `/lobby`, `/battle/[roomId]`, `/leaderboard`, `/profile`) 를 감싼다.
 
-The landing page `/` and `/auth/set-nickname` keep their full-screen centered layout — they are pre-auth and have no nav.
+랜딩 페이지 `/` 와 `/auth/set-nickname` 은 기존의 풀스크린 중앙 정렬 레이아웃을 유지 — 인증 전이고 nav 가 불필요하다.
 
-### Sidebar (left)
+### 사이드바 (좌측)
 
-- **Width:** 140px fixed
-- **Background:** `#0a0a14` (slightly darker than page background `#0a0a1a`) with `border-r border-[#1a1a2e]`
-- **Layout:** Flex column, full viewport height, padding 14px
+- **너비:** 140px 고정
+- **배경색:** `#0a0a14` (페이지 배경 `#0a0a1a` 보다 살짝 어두움), `border-r border-[#1a1a2e]`
+- **레이아웃:** Flex column, 뷰포트 높이 100%, padding 14px
 
-Sections, top to bottom:
+상단부터 아래로:
 
-1. **Logo** — `TETRIS` in Orbitron bold, cyan with neon glow (`text-shadow: 0 0 8px #00f5ff`)
-2. **Mini profile card** (only when logged in, hidden for guests)
-   - Avatar circle (gradient placeholder; we don't have avatar uploads yet)
-   - Nickname (white, truncate)
-   - Rank line: `★ Rank #N` (yellow)
-   - Best score line: `Best 13,401` (gray)
-   - Bordered with `border border-[#1a1a2e] rounded`
-3. **Nav links** — vertical list, font-size 12px, letter-spacing wide
+1. **로고** — Orbitron Bold 로 `TETRIS`, 시안색 + 네온 글로우 (`text-shadow: 0 0 8px #00f5ff`)
+2. **미니 프로필 카드** (로그인 시에만 표시, 게스트는 숨김)
+   - 아바타 원형 (그래디언트 플레이스홀더 — 아바타 업로드 기능은 아직 없음)
+   - 닉네임 (흰색, truncate)
+   - 랭킹: `★ Rank #N` (노란색)
+   - 베스트 스코어: `Best 13,401` (회색)
+   - `border border-[#1a1a2e] rounded` 박스로 감쌈
+3. **Nav 링크** — 세로 리스트, 폰트 사이즈 12px, letter-spacing wide
    - `▢ Menu` → `/menu`
    - `▸ Play` → `/play`
    - `⚔ Battle` → `/lobby`
    - `★ Board` → `/leaderboard`
-   - `◐ Profile` → `/profile` (hidden for guests, like current menu logic)
-   - Active page: magenta with neon glow + `▸` marker
-   - Inactive: gray, hover lightens
+   - `◐ Profile` → `/profile` (게스트는 숨김, 현재 메뉴 로직과 동일)
+   - 현재 페이지: 마젠타 + 네온 글로우 + `▸` 마커
+   - 비활성: 회색, 호버 시 밝아짐
 
-The existing `SettingsButton` (gear icon) remains `position: fixed` top-right and keeps its current modal (language, keybindings, logout). **Do not duplicate logout in the sidebar** — it already lives in the settings modal.
+기존 `SettingsButton` (기어 아이콘) 은 `position: fixed` 우상단 위치를 유지하고 현재 모달 (언어, 키바인딩, 로그아웃) 을 그대로 사용. **사이드바에 로그아웃을 중복으로 넣지 않음** — 설정 모달에 이미 있음.
 
-### Content area (right of sidebar)
+### 콘텐츠 영역 (사이드바 우측)
 
-- Fills remaining viewport width
-- Default vertical padding: `py-8`
-- Each page provides its own inner layout
+- 남은 뷰포트 너비를 가득 채움
+- 기본 세로 패딩: `py-8`
+- 페이지마다 내부 레이아웃을 따로 정의
 
-## Board Sizing — Stepped Breakpoints
+## 보드 사이징 — Stepped Breakpoints
 
-Cell size scales by **viewport height** in three steps. We use viewport height (not width) because the board is taller than wide and screen height is the binding dimension.
+셀 크기를 **뷰포트 높이** 기준 3단계로 변경. 보드는 가로보다 세로가 길고, 화면 높이가 결정적이기 때문에 너비가 아닌 높이를 기준으로 한다.
 
-| Viewport height | Cell size | Board dimensions |
+| 뷰포트 높이 | 셀 크기 | 보드 크기 |
 |---|---|---|
 | ≤ 900px | 24px | 240 × 480 |
-| 901–1200px | 32px | 320 × 640 |
+| 901~1200px | 32px | 320 × 640 |
 | ≥ 1201px | 40px | 400 × 800 |
 
-`HoldPiece` and `NextPieces` cell sizes scale proportionally:
+`HoldPiece` 와 `NextPieces` 의 셀 크기도 비례해서 스케일:
 
-| Tier | Board cell | Hold cell | Next cell |
+| 단계 | 보드 셀 | Hold 셀 | Next 셀 |
 |---|---|---|---|
 | Small | 24 | 16 | 12 |
 | Medium | 32 | 20 | 16 |
 | Large | 40 | 26 | 20 |
 
-### Implementation approach
+### 구현 방식
 
-Cell size is decided once at render time from `window.innerHeight` and propagated through React state via a `useViewportTier()` hook that:
+셀 크기는 렌더 시점에 `window.innerHeight` 로부터 한 번 결정되어 React state 를 통해 전달된다. `useViewportTier()` 훅은:
 
-1. Reads `window.innerHeight` on mount
-2. Subscribes to `window.resize` (debounced 100ms)
-3. Returns `'sm' | 'md' | 'lg'`
+1. 마운트 시 `window.innerHeight` 를 읽음
+2. `window.resize` 를 100ms 디바운스로 구독
+3. `'sm' | 'md' | 'lg'` 를 반환
 
-`TetrisBoard`, `HoldPiece`, `NextPieces` accept the tier as a prop (or read from a context) and pick their cell size accordingly. Canvas `width` / `height` attributes update on tier change, causing a redraw via existing `useEffect` deps.
+`TetrisBoard`, `HoldPiece`, `NextPieces` 는 tier 를 prop (또는 context) 으로 받아 셀 크기를 결정한다. 캔버스의 `width` / `height` 속성도 tier 변경 시 업데이트되며, 기존 `useEffect` deps 를 통해 다시 그려진다.
 
-We do **not** use CSS `transform: scale()` — the canvas needs real pixel resolution to stay crisp.
+CSS `transform: scale()` 은 사용하지 않는다 — 캔버스는 픽셀 해상도가 실제로 변해야 선명하게 유지된다.
 
-## Game Page (`/play`) Layout
+## 게임 페이지 (`/play`) 레이아웃
 
-Inside the content area:
+콘텐츠 영역 내부:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                                            ⚙ (fixed)   │
 │                                                         │
 │   ┌──────┐    ┌────────────┐    ┌──────┐                │
-│   │HOLD  │    │            │    │ NEXT │                │
+│   │ HOLD │    │            │    │ NEXT │                │
 │   │      │    │            │    │      │                │
 │   ├──────┤    │   BOARD    │    │      │                │
 │   │SCORE │    │            │    │      │                │
@@ -118,16 +118,16 @@ Inside the content area:
 └─────────────────────────────────────────────────────────┘
 ```
 
-- Left panel and right panel widths scale with tier: `74px / 90px / 112px`
-- Gap between panels and board: `12px` (was `24px`)
-- Stats (Score, Best, Level, Lines) move from a separate column into the left panel below `HoldPiece`
-- Key-help line stays at page bottom, smaller and gray
+- 좌우 패널 너비는 tier 에 따라: `74px / 90px / 112px`
+- 패널과 보드 사이 간격: `12px` (기존 `24px` 에서 축소)
+- 통계 (Score, Best, Level, Lines) 가 별도 컬럼에서 좌측 패널의 `HoldPiece` 아래로 통합
+- 키 안내 라인은 페이지 하단에 작고 회색으로 유지
 
-The left panel uses a single column flex layout: HOLD canvas → SCORE → BEST → LEVEL → LINES, each labeled with a small uppercase 8px label and a colored value (cyan / yellow / magenta / white as today).
+좌측 패널은 단일 컬럼 flex 레이아웃: HOLD 캔버스 → SCORE → BEST → LEVEL → LINES, 각각 8px 대문자 라벨 + 색상 (시안 / 노랑 / 마젠타 / 흰색) 값.
 
-## Battle Page (`/battle/[roomId]`) Layout
+## 배틀 페이지 (`/battle/[roomId]`) 레이아웃
 
-Same shell, board uses the same tier sizing. Right of the board:
+같은 shell, 보드는 동일한 tier 사이징 사용. 보드 우측:
 
 ```
 ┌──────┐  ┌────────────┐  ┌──────┐  │ ┌──────────┐
@@ -142,75 +142,75 @@ Same shell, board uses the same tier sizing. Right of the board:
                                     │ └──────────┘
 ```
 
-- Existing `OpponentMini` component placement changes: from "below NEXT in right panel" to "separated rail to the right of NEXT" with a thin vertical divider
-- Opponent rail has its own background tone (slight red tint on border) to visually distinguish from "my" side
-- All cell sizing follows the same tier
+- 기존 `OpponentMini` 컴포넌트의 위치 변경: "오른쪽 패널 NEXT 아래" → "NEXT 옆 별도 rail, 얇은 세로 디바이더로 구분"
+- 상대방 rail 은 자체 배경 톤을 가짐 (테두리에 살짝 붉은 틴트) — "내 쪽" 과 시각적으로 구분
+- 모든 셀 크기는 동일한 tier 적용
 
-## Other Pages
+## 다른 페이지
 
-All other authenticated pages use the same shell. Inner content uses `max-width` containers (not full-bleed) for readability:
+다른 모든 인증 페이지도 같은 shell 사용. 내부 콘텐츠는 가독성을 위해 `max-width` 컨테이너 (풀 블리드 X):
 
-- **`/menu`** — Title centered in content area, mode buttons centered in a `max-w-md` column. Drop the redundant `← Back` link (sidebar handles nav).
-- **`/lobby`** — Title `BATTLE LOBBY`, `MatchmakingLobby` component below in `max-w-lg` container. Drop `← Back`.
-- **`/leaderboard`** — Table in `max-w-2xl` centered, drop `← Back`.
-- **`/profile`** — Stats grid + recent games in `max-w-2xl` centered, drop `← Back`.
+- **`/menu`** — 타이틀을 콘텐츠 영역 중앙에, 모드 버튼들을 `max-w-md` 컬럼에 중앙 정렬. 중복인 `← Back` 링크 제거 (사이드바가 nav 담당)
+- **`/lobby`** — 타이틀 `BATTLE LOBBY`, 아래에 `MatchmakingLobby` 컴포넌트를 `max-w-lg` 컨테이너로. `← Back` 제거
+- **`/leaderboard`** — `max-w-2xl` 중앙 정렬 테이블, `← Back` 제거
+- **`/profile`** — `max-w-2xl` 중앙 정렬 통계 그리드 + 최근 경기, `← Back` 제거
 
-The current cyberpunk neon palette stays unchanged across all pages (cyan primary, magenta accent, yellow highlight, dark navy background).
+현재의 사이버펑크 네온 팔레트는 전 페이지에서 유지 (시안 메인, 마젠타 액센트, 노랑 하이라이트, 다크 네이비 배경).
 
-## Localization Cleanup
+## 다국어 정리
 
-The sidebar nav labels and game stat labels go through `useLanguage()`/`t()`. Today:
+사이드바 nav 라벨과 게임 통계 라벨을 `useLanguage()`/`t()` 로 통일. 현재 상태:
 
-- `SoloGame` mixes `{t('score')}` with hardcoded `'Score'` etc — inconsistent
-- `BattleGame` uses hardcoded English (`Score`, `Time`, `Level`)
-- `Leaderboard` / `Profile` use hardcoded English headings
+- `SoloGame` 은 `{t('score')}` 와 하드코딩된 `'Score'` 가 혼재 — 일관성 없음
+- `BattleGame` 은 하드코딩 영어 (`Score`, `Time`, `Level`) 사용
+- `Leaderboard` / `Profile` 은 하드코딩 영어 헤딩 사용
 
-Scope of i18n cleanup in this redesign: **sidebar nav, page titles, stat labels**. Pre-existing translation keys are reused where they exist (`score`, `bestScore`, `level`, `lines`, `hold`); new keys added for page titles and `time`, `opponent`, `myBoard`.
+이번 리디자인에서 i18n 정리 범위: **사이드바 nav, 페이지 타이틀, 통계 라벨**. 기존 번역 키 (`score`, `bestScore`, `level`, `lines`, `hold`) 는 재사용; 페이지 타이틀과 `time`, `opponent`, `myBoard` 키를 새로 추가.
 
-## Components — New / Modified
+## 컴포넌트 — 신규 / 수정
 
-**New:**
+**신규:**
 
-- `src/components/AppShell.tsx` — sidebar + content slot
-- `src/components/Sidebar.tsx` — logo, profile, nav links
-- `src/components/UserMiniProfile.tsx` — avatar + nickname + rank + best (uses Supabase profile + leaderboard query)
-- `src/hooks/useViewportTier.ts` — returns `'sm' | 'md' | 'lg'` from `window.innerHeight`
+- `src/components/AppShell.tsx` — 사이드바 + 콘텐츠 슬롯
+- `src/components/Sidebar.tsx` — 로고, 프로필, nav 링크
+- `src/components/UserMiniProfile.tsx` — 아바타 + 닉네임 + 랭킹 + 베스트 (Supabase profile + leaderboard 쿼리 사용)
+- `src/hooks/useViewportTier.ts` — `window.innerHeight` 로부터 `'sm' | 'md' | 'lg'` 반환
 
-**Modified:**
+**수정:**
 
-- `src/components/TetrisBoard.tsx` — accept `tier` prop, compute `CELL` from tier
-- `src/components/HoldPiece.tsx` — accept `tier`, compute cell + canvas size
-- `src/components/NextPieces.tsx` — accept `tier`, compute cell + canvas size
-- `src/components/OpponentMini.tsx` — accept `tier` (already a mini, smaller jumps)
-- `src/components/SoloGame.tsx` — drop outer page chrome, lay out left panel + board + right panel inside shell
-- `src/components/BattleGame.tsx` — same restructure, opponent rail to the right
-- `src/app/play/page.tsx` — replace inline nav with `<AppShell><SoloGame/></AppShell>`
-- `src/app/battle/[roomId]/page.tsx` — wrap with `AppShell`
-- `src/app/menu/page.tsx` — wrap with `AppShell`, drop guest-redirect inside shell (still client-side)
-- `src/app/lobby/page.tsx` — wrap with `AppShell`, drop `← Back`
-- `src/app/leaderboard/page.tsx` — wrap with `AppShell`, drop `← Back`
-- `src/app/profile/page.tsx` — wrap with `AppShell`, drop `← Back`
-- `src/lib/i18n.ts` — add translation keys for new sidebar labels and page titles
+- `src/components/TetrisBoard.tsx` — `tier` prop 추가, tier 기반 `CELL` 계산
+- `src/components/HoldPiece.tsx` — `tier` 추가, 셀 + 캔버스 사이즈 계산
+- `src/components/NextPieces.tsx` — `tier` 추가, 셀 + 캔버스 사이즈 계산
+- `src/components/OpponentMini.tsx` — `tier` 추가 (이미 미니 사이즈, 변동 폭은 작게)
+- `src/components/SoloGame.tsx` — 외부 페이지 chrome 제거, shell 내부에서 좌측 패널 + 보드 + 우측 패널 레이아웃
+- `src/components/BattleGame.tsx` — 같은 방식으로 재구성, 상대방 rail 을 우측으로
+- `src/app/play/page.tsx` — 인라인 nav 를 `<AppShell><SoloGame/></AppShell>` 로 교체
+- `src/app/battle/[roomId]/page.tsx` — `AppShell` 로 감쌈
+- `src/app/menu/page.tsx` — `AppShell` 로 감쌈, 게스트 리다이렉트는 shell 내부에서도 유지 (클라이언트 사이드)
+- `src/app/lobby/page.tsx` — `AppShell` 로 감쌈, `← Back` 제거
+- `src/app/leaderboard/page.tsx` — `AppShell` 로 감쌈, `← Back` 제거
+- `src/app/profile/page.tsx` — `AppShell` 로 감쌈, `← Back` 제거
+- `src/lib/i18n.ts` — 사이드바 라벨 및 페이지 타이틀 번역 키 추가
 
-**Unchanged:**
+**변경 없음:**
 
-- `src/app/page.tsx` (landing) and `src/app/auth/set-nickname/page.tsx` — pre-auth, no shell
-- `src/components/SettingsButton.tsx` — keeps fixed top-right position and modal
-- `src/components/TetrisBackground.tsx` — drifting tetromino background continues to render behind the shell
-- `src/game/*`, `src/hooks/useGame.ts`, `src/hooks/useBattle.ts` — pure game logic untouched
+- `src/app/page.tsx` (랜딩) 과 `src/app/auth/set-nickname/page.tsx` — 인증 전, shell 사용 안 함
+- `src/components/SettingsButton.tsx` — 우상단 고정 + 모달 그대로 유지
+- `src/components/TetrisBackground.tsx` — 떠다니는 테트리미노 배경은 shell 뒤에 계속 렌더
+- `src/game/*`, `src/hooks/useGame.ts`, `src/hooks/useBattle.ts` — 순수 게임 로직 손대지 않음
 
-## Out of Scope
+## 스코프 외
 
-- Mobile / tablet layouts (desktop-only by decision)
-- Visual identity change — cyberpunk neon stays
-- Avatar image uploads (mini profile uses gradient placeholder)
-- Settings modal redesign (separate concern)
-- Re-skinning the landing page or set-nickname flow
-- Refactoring `useGame` / `useBattle` / game engine
+- 모바일 / 태블릿 레이아웃 (데스크탑 전용 결정)
+- 비주얼 아이덴티티 변경 — 사이버펑크 네온 유지
+- 아바타 이미지 업로드 (미니 프로필은 그래디언트 플레이스홀더 사용)
+- 설정 모달 리디자인 (별도 작업)
+- 랜딩 페이지 / set-nickname 화면 리스킨
+- `useGame` / `useBattle` / 게임 엔진 리팩토링
 
-## Risks
+## 리스크
 
-- **Canvas redraw on tier change:** Existing `useEffect` deps in `TetrisBoard` already include `cellSize`, so a tier change should trigger a redraw. Verify no flicker.
-- **Profile data fetch in sidebar:** `UserMiniProfile` runs a Supabase query on every page; needs to be cached or fetched once at shell level and passed down. Plan to use a lightweight context that fetches once on mount.
-- **`min-h-screen` on inner pages:** Several pages use `min-h-screen` directly — when wrapped in shell they must drop this so the shell controls the viewport, otherwise nested scroll.
-- **`SettingsButton` z-index:** Fixed gear icon may overlap sidebar logo at very small widths. With desktop-only assumption and sidebar at 140px, gear at top-right is well clear — but verify at 1024px.
+- **Tier 변경 시 캔버스 리드로:** `TetrisBoard` 의 기존 `useEffect` deps 에 `cellSize` 가 이미 포함되어 있어 tier 변경 시 자동 리드로 발생 예정. 깜빡임 없는지 확인 필요.
+- **사이드바의 프로필 데이터 fetch:** `UserMiniProfile` 이 페이지마다 Supabase 쿼리를 돌리지 않도록 shell 레벨에서 한 번만 fetch 하고 내려주는 가벼운 context 사용 예정.
+- **내부 페이지의 `min-h-screen`:** 여러 페이지가 `min-h-screen` 을 직접 사용 중인데, shell 로 감싸면서 이걸 제거해야 함. 안 그러면 중첩 스크롤 발생.
+- **`SettingsButton` z-index:** 고정 기어 아이콘이 매우 작은 너비에서 사이드바 로고와 겹칠 수 있음. 데스크탑 전용 + 사이드바 140px 가정이면 우상단 기어는 충분히 떨어져 있지만 1024px 에서 확인 필요.
