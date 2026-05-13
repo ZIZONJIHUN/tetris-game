@@ -3,27 +3,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signInAsGuest, signIn, signUp, signInWithOAuth } from '@/lib/auth'
 import { useLanguage } from '@/contexts/LanguageContext'
+import TetrisBackground from '@/components/TetrisBackground'
 
 type Mode = 'home' | 'guest' | 'login' | 'signup'
-
-function OAuthButton({ provider, label, icon }: { provider: 'google' | 'facebook'; label: string; icon: React.ReactNode }) {
-  const [loading, setLoading] = useState(false)
-  async function handle() {
-    setLoading(true)
-    try { await signInWithOAuth(provider) } catch { setLoading(false) }
-  }
-  return (
-    <button
-      onClick={handle}
-      disabled={loading}
-      className="w-full flex items-center justify-center gap-3 py-3 text-base font-bold rounded border transition hover:bg-[var(--bg)] disabled:opacity-40"
-      style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
-    >
-      {icon}
-      {loading ? '...' : label}
-    </button>
-  )
-}
 
 const GoogleIcon = (
   <svg width="18" height="18" viewBox="0 0 48 48">
@@ -40,6 +22,33 @@ const FacebookIcon = (
   </svg>
 )
 
+function OAuthButton({
+  provider, label, icon, borderClass, glow,
+}: {
+  provider: 'google' | 'facebook'
+  label: string
+  icon: React.ReactNode
+  borderClass: string
+  glow: string
+}) {
+  const [loading, setLoading] = useState(false)
+  async function handle() {
+    setLoading(true)
+    try { await signInWithOAuth(provider) } catch { setLoading(false) }
+  }
+  return (
+    <button
+      onClick={handle}
+      disabled={loading}
+      className={`flex items-center justify-center gap-3 py-3 border ${borderClass} font-bold tracking-widest transition disabled:opacity-40 hover:bg-white/5`}
+      style={{ boxShadow: `0 0 12px ${glow}` }}
+    >
+      {icon}
+      <span>{loading ? '...' : label}</span>
+    </button>
+  )
+}
+
 export default function HomePage() {
   const router = useRouter()
   const { t } = useLanguage()
@@ -51,7 +60,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false)
 
   const nicknameError = nickname.trim().length > 0 && nickname.trim().length < 3
-    ? '닉네임은 3글자 이상이어야 합니다.' : ''
+    ? t('nicknameMinError') : ''
 
   async function handleGuest(e: React.FormEvent) {
     e.preventDefault()
@@ -88,128 +97,178 @@ export default function HomePage() {
     } finally { setLoading(false) }
   }
 
-  const inputClass = "w-full border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--text)] outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] placeholder:text-[var(--text-muted)] rounded"
-
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: 'var(--bg)' }}>
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-black tracking-widest" style={{ color: 'var(--text)' }}>TETRIS</h1>
-          <p className="text-sm mt-2 tracking-widest" style={{ color: 'var(--text-muted)' }}>CLASSIC GAME</p>
-        </div>
-
-        <div className="bg-white border border-[var(--border)] rounded-lg shadow-sm p-8">
-          {mode === 'home' && (
-            <div className="flex flex-col gap-3">
-              {/* OAuth */}
-              <OAuthButton provider="google" label="Google로 로그인" icon={GoogleIcon} />
-              <OAuthButton provider="facebook" label="Facebook으로 로그인" icon={FacebookIcon} />
-
-              <div className="flex items-center gap-3 my-1">
-                <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
-                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>또는</span>
-                <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
-              </div>
-
-              {/* 이메일 */}
-              <button onClick={() => setMode('login')}
-                className="w-full py-3 text-base font-bold rounded border transition hover:bg-[var(--bg)]"
-                style={{ borderColor: 'var(--border)', color: 'var(--text)' }}>
-                {t('login')}
-              </button>
-              <button onClick={() => setMode('signup')}
-                className="w-full py-3 text-base font-bold rounded border transition hover:bg-[var(--bg)]"
-                style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
-                {t('signUp')}
-              </button>
-
-              <div className="flex items-center gap-3 my-1">
-                <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
-                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>게스트</span>
-                <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
-              </div>
-
-              <button onClick={() => setMode('guest')}
-                className="w-full py-3 text-base font-bold rounded transition"
-                style={{ background: 'var(--accent)', color: '#fff' }}>
-                {t('guestPlay')}
-              </button>
-            </div>
-          )}
-
-          {mode === 'guest' && (
-            <form onSubmit={handleGuest} className="flex flex-col gap-3">
-              <p className="text-base font-bold" style={{ color: 'var(--text)' }}>{t('guestPlay')}</p>
-              <div>
-                <input type="text" placeholder={`${t('nickname')} (최소 3글자)`} maxLength={16}
-                  value={nickname} onChange={e => setNickname(e.target.value)}
-                  className={inputClass} autoFocus />
-                {nicknameError && <p className="text-xs mt-1" style={{ color: 'var(--danger)' }}>{nicknameError}</p>}
-              </div>
-              {error && <p className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
-              <button type="submit" disabled={loading || nickname.trim().length < 3}
-                className="w-full py-3 text-base font-bold rounded transition disabled:opacity-40"
-                style={{ background: 'var(--accent)', color: '#fff' }}>
-                {loading ? '...' : t('start')}
-              </button>
-              <button type="button" onClick={() => setMode('home')}
-                className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
-                {t('back')}
-              </button>
-            </form>
-          )}
-
-          {mode === 'login' && (
-            <form onSubmit={handleLogin} className="flex flex-col gap-3">
-              <p className="text-base font-bold" style={{ color: 'var(--text)' }}>{t('login')}</p>
-              <input type="email" placeholder={t('email')}
-                value={email} onChange={e => setEmail(e.target.value)}
-                className={inputClass} autoFocus />
-              <input type="password" placeholder={t('password')}
-                value={password} onChange={e => setPassword(e.target.value)}
-                className={inputClass} />
-              {error && <p className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
-              <button type="submit" disabled={loading}
-                className="w-full py-3 text-base font-bold rounded transition disabled:opacity-40"
-                style={{ background: 'var(--accent)', color: '#fff' }}>
-                {loading ? '...' : t('login')}
-              </button>
-              <button type="button" onClick={() => setMode('home')}
-                className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
-                {t('back')}
-              </button>
-            </form>
-          )}
-
-          {mode === 'signup' && (
-            <form onSubmit={handleSignUp} className="flex flex-col gap-3">
-              <p className="text-base font-bold" style={{ color: 'var(--text)' }}>{t('signUp')}</p>
-              <div>
-                <input type="text" placeholder={`${t('nickname')} (최소 3글자)`} maxLength={16}
-                  value={nickname} onChange={e => setNickname(e.target.value)}
-                  className={inputClass} autoFocus />
-                {nicknameError && <p className="text-xs mt-1" style={{ color: 'var(--danger)' }}>{nicknameError}</p>}
-              </div>
-              <input type="email" placeholder={t('email')}
-                value={email} onChange={e => setEmail(e.target.value)}
-                className={inputClass} />
-              <input type="password" placeholder={t('password')}
-                value={password} onChange={e => setPassword(e.target.value)}
-                className={inputClass} />
-              {error && <p className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
-              <button type="submit" disabled={loading || nickname.trim().length < 3}
-                className="w-full py-3 text-base font-bold rounded transition disabled:opacity-40"
-                style={{ background: 'var(--accent)', color: '#fff' }}>
-                {loading ? '...' : t('signUp')}
-              </button>
-              <button type="button" onClick={() => setMode('home')}
-                className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
-                {t('back')}
-              </button>
-            </form>
-          )}
-        </div>
+    <main className="min-h-screen flex flex-col items-center justify-center gap-8 px-4">
+      <TetrisBackground />
+      {/* 타이틀 */}
+      <div className="text-center">
+        <h1
+          className="text-6xl font-bold tracking-widest text-cyan-400"
+          style={{ textShadow: '0 0 30px #00f5ff, 0 0 60px #00f5ff44' }}
+        >
+          TETRIS
+        </h1>
+        <p className="text-gray-500 mt-2 tracking-widest text-sm">CYBERPUNK EDITION</p>
       </div>
+
+      {/* 홈 — 모드 선택 */}
+      {mode === 'home' && (
+        <div className="flex flex-col gap-3 w-72">
+          {/* OAuth */}
+          <OAuthButton
+            provider="google"
+            label="GOOGLE"
+            icon={GoogleIcon}
+            borderClass="border-pink-500 text-pink-300"
+            glow="rgba(255,0,128,0.25)"
+          />
+          <OAuthButton
+            provider="facebook"
+            label="FACEBOOK"
+            icon={FacebookIcon}
+            borderClass="border-blue-500 text-blue-300"
+            glow="rgba(24,119,242,0.3)"
+          />
+
+          <div className="flex items-center gap-3 my-1">
+            <div className="flex-1 h-px bg-gray-700" />
+            <span className="text-xs text-gray-600 tracking-widest">{t('or')}</span>
+            <div className="flex-1 h-px bg-gray-700" />
+          </div>
+
+          <button
+            onClick={() => setMode('guest')}
+            className="py-3 border border-cyan-500 text-cyan-400 font-bold tracking-widest hover:bg-cyan-500/20 transition"
+            style={{ boxShadow: '0 0 12px rgba(0,245,255,0.2)' }}
+          >
+            {t('guestPlay')}
+          </button>
+          <button
+            onClick={() => setMode('login')}
+            className="py-3 border border-purple-500 text-purple-400 font-bold tracking-widest hover:bg-purple-500/20 transition"
+            style={{ boxShadow: '0 0 12px rgba(255,0,255,0.2)' }}
+          >
+            {t('login')}
+          </button>
+          <button
+            onClick={() => setMode('signup')}
+            className="py-3 border border-gray-600 text-gray-400 font-bold tracking-widest hover:bg-gray-700/30 transition"
+          >
+            {t('signUp')}
+          </button>
+        </div>
+      )}
+
+      {/* 게스트 플레이 */}
+      {mode === 'guest' && (
+        <form onSubmit={handleGuest} className="flex flex-col gap-3 w-72">
+          <p className="text-gray-400 text-sm text-center">{t('enterNickname')}</p>
+          <input
+            type="text"
+            placeholder={t('nickname')}
+            maxLength={16}
+            value={nickname}
+            onChange={e => setNickname(e.target.value)}
+            className="bg-transparent border border-cyan-500/50 text-cyan-300 px-4 py-2 outline-none focus:border-cyan-400 placeholder:text-gray-600 tracking-widest text-center"
+            autoFocus
+          />
+          {nicknameError && <p className="text-yellow-400 text-xs text-center">{nicknameError}</p>}
+          {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+          <button
+            type="submit"
+            disabled={loading || nickname.trim().length < 3}
+            className="py-3 border border-cyan-500 text-cyan-400 font-bold tracking-widest hover:bg-cyan-500/20 transition disabled:opacity-40"
+          >
+            {loading ? '...' : t('start')}
+          </button>
+          <button type="button" onClick={() => setMode('home')} className="text-gray-600 text-xs hover:text-gray-400">
+            {t('back')}
+          </button>
+        </form>
+      )}
+
+      {/* 로그인 */}
+      {mode === 'login' && (
+        <form onSubmit={handleLogin} className="flex flex-col gap-3 w-72">
+          <p className="text-gray-400 text-sm text-center">{t('login')}</p>
+          <input
+            type="email"
+            placeholder={t('email')}
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            className="bg-transparent border border-purple-500/50 text-purple-300 px-4 py-2 outline-none focus:border-purple-400 placeholder:text-gray-600 tracking-widest"
+            autoFocus
+          />
+          <input
+            type="password"
+            placeholder={t('password')}
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            className="bg-transparent border border-purple-500/50 text-purple-300 px-4 py-2 outline-none focus:border-purple-400 placeholder:text-gray-600 tracking-widest"
+          />
+          {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+          <button
+            type="submit"
+            disabled={loading}
+            className="py-3 border border-purple-500 text-purple-400 font-bold tracking-widest hover:bg-purple-500/20 transition disabled:opacity-40"
+          >
+            {loading ? '...' : t('login')}
+          </button>
+          <button type="button" onClick={() => setMode('home')} className="text-gray-600 text-xs hover:text-gray-400">
+            {t('back')}
+          </button>
+        </form>
+      )}
+
+      {/* 회원가입 */}
+      {mode === 'signup' && (
+        <form onSubmit={handleSignUp} className="flex flex-col gap-3 w-72">
+          <p className="text-gray-400 text-sm text-center">{t('signUp')}</p>
+          <input
+            type="text"
+            placeholder={`${t('nickname')} ${t('nicknameMin')}`}
+            maxLength={16}
+            value={nickname}
+            onChange={e => setNickname(e.target.value)}
+            className="bg-transparent border border-gray-600 text-gray-300 px-4 py-2 outline-none focus:border-gray-400 placeholder:text-gray-600 tracking-widest"
+            autoFocus
+          />
+          {nicknameError && <p className="text-yellow-400 text-xs text-center">{nicknameError}</p>}
+          <input
+            type="email"
+            placeholder={t('email')}
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            className="bg-transparent border border-gray-600 text-gray-300 px-4 py-2 outline-none focus:border-gray-400 placeholder:text-gray-600 tracking-widest"
+          />
+          <input
+            type="password"
+            placeholder={t('password')}
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            className="bg-transparent border border-gray-600 text-gray-300 px-4 py-2 outline-none focus:border-gray-400 placeholder:text-gray-600 tracking-widest"
+          />
+          {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+          <button
+            type="submit"
+            disabled={loading || nickname.trim().length < 3}
+            className="py-3 border border-gray-500 text-gray-300 font-bold tracking-widest hover:bg-gray-700/30 transition disabled:opacity-40"
+          >
+            {loading ? '...' : t('signUp')}
+          </button>
+          <button type="button" onClick={() => setMode('home')} className="text-gray-600 text-xs hover:text-gray-400">
+            {t('back')}
+          </button>
+        </form>
+      )}
+
+      {/* 하단 메뉴 */}
+      {mode === 'home' && (
+        <div className="flex gap-6 text-xs text-gray-600">
+          <a href="/leaderboard" className="hover:text-gray-400 tracking-widest">LEADERBOARD</a>
+          <a href="/lobby" className="hover:text-gray-400 tracking-widest">BATTLE</a>
+        </div>
+      )}
     </main>
   )
 }
