@@ -1,14 +1,17 @@
 'use client'
 import TetrisBoard from './TetrisBoard'
 import { BroadcastGameState } from '@/game/types'
+import type { Tier } from '@/lib/tierSizes'
 
 type Props = {
   state: BroadcastGameState | null
   nickname: string
   isConnected: boolean
+  tier?: Tier
 }
 
-export default function OpponentMini({ state, nickname, isConnected }: Props) {
+export default function OpponentMini({ state, nickname, isConnected, tier }: Props) {
+  void tier
   const emptyBoard = Array.from({ length: 20 }, () => Array(10).fill(0))
 
   return (
