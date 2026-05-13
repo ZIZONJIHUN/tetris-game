@@ -2,8 +2,8 @@
 import { useEffect, useRef } from 'react'
 import { Piece } from '@/game/types'
 import { PIECE_COLORS, PIECE_ID, getPieceCells } from '@/game/pieces'
+import { getCellSize, type Tier } from '@/lib/tierSizes'
 
-const CELL = 30
 const MINI_CELL = 12
 
 type Props = {
@@ -12,6 +12,7 @@ type Props = {
   ghostY?: number
   mini?: boolean
   flashRows?: number[]
+  tier?: Tier  // default 'md' (mini 모드일 땐 사용 안 함)
 }
 
 function drawCell(
@@ -32,10 +33,10 @@ function drawCell(
 }
 
 export default function TetrisBoard({
-  board, currentPiece, ghostY, mini = false, flashRows = [],
+  board, currentPiece, ghostY, mini = false, flashRows = [], tier,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const cellSize = mini ? MINI_CELL : CELL
+  const cellSize = mini ? MINI_CELL : getCellSize(tier ?? 'md').board
   const width = 10 * cellSize
   const height = 20 * cellSize
 
