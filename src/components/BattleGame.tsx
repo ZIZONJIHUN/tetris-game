@@ -8,6 +8,9 @@ import HoldPiece from './HoldPiece'
 import NextPieces from './NextPieces'
 import OpponentMini from './OpponentMini'
 import { createClient } from '@/lib/supabase/client'
+import { useViewportTier } from '@/hooks/useViewportTier'
+import { useLanguage } from '@/contexts/LanguageContext'
+import { getPanelWidth } from '@/lib/tierSizes'
 
 function formatTime(ms: number) {
   const secs = Math.ceil(ms / 1000)
@@ -25,6 +28,9 @@ export default function BattleGame({ roomId }: { roomId: string }) {
   } = useBattle(roomId)
 
   useKeyboard(actions, phase === 'playing')
+  const tier = useViewportTier()
+  const { t } = useLanguage()
+  const panelW = getPanelWidth(tier)
 
   // 결과 저장 (로그인 유저만)
   useEffect(() => {
@@ -48,29 +54,28 @@ export default function BattleGame({ roomId }: { roomId: string }) {
   }, [result, roomId])
 
   return (
-    <div className="flex items-start gap-6 justify-center">
-      {/* 왼쪽 패널 */}
-      <div className="flex flex-col gap-4 w-24">
-        <HoldPiece piece={gameState.holdPiece} />
+    <div className="flex items-start gap-3 justify-center">
+      {/* 좌측 패널 */}
+      <div className="flex flex-col gap-3" style={{ width: panelW }}>
+        <HoldPiece piece={gameState.holdPiece} tier={tier} />
         <div>
-          <p className="text-xs text-gray-400 uppercase tracking-widest">Score</p>
-          <p className="text-cyan-400 font-bold text-xl tabular-nums"
-            style={{ textShadow: '0 0 8px #00f5ff' }}>
+          <p className="text-[10px] text-gray-500 uppercase tracking-widest">{t('score')}</p>
+          <p className="text-cyan-400 font-bold text-lg tabular-nums" style={{ textShadow: '0 0 8px #00f5ff' }}>
             {gameState.score.toLocaleString()}
           </p>
         </div>
         <div>
-          <p className="text-xs text-gray-400 uppercase tracking-widest">Time</p>
-          <p className={`font-bold text-lg ${timeLeft < 30000 ? 'text-red-400' : 'text-yellow-400'}`}>
+          <p className="text-[10px] text-gray-500 uppercase tracking-widest">{t('time')}</p>
+          <p className={`font-bold text-sm tabular-nums ${timeLeft < 30000 ? 'text-red-400' : 'text-yellow-400'}`}>
             {formatTime(timeLeft)}
           </p>
         </div>
         <div>
-          <p className="text-xs text-gray-400 uppercase tracking-widest">Level</p>
-          <p className="text-purple-400 font-bold">{gameState.level}</p>
+          <p className="text-[10px] text-gray-500 uppercase tracking-widest">{t('level')}</p>
+          <p className="text-purple-400 font-bold text-sm">{gameState.level}</p>
         </div>
         {myNickname && (
-          <p className="text-cyan-400 text-xs truncate" style={{ textShadow: '0 0 4px #00f5ff' }}>
+          <p className="text-cyan-400 text-[11px] truncate" style={{ textShadow: '0 0 4px #00f5ff' }}>
             {myNickname}
           </p>
         )}
@@ -83,59 +88,65 @@ export default function BattleGame({ roomId }: { roomId: string }) {
           currentPiece={gameState.currentPiece}
           ghostY={gameState.ghostY}
           flashRows={gameState.flashRows}
+          tier={tier}
         />
-
-        {/* 카운트다운 오버레이 */}
         {phase === 'countdown' && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-            <span className="text-8xl font-bold text-cyan-400"
-              style={{ textShadow: '0 0 30px #00f5ff' }}>
+            <span className="text-8xl font-bold text-cyan-400" style={{ textShadow: '0 0 30px #00f5ff' }}>
               {countdown}
             </span>
           </div>
         )}
-
-        {/* 대기 오버레이 */}
         {phase === 'waiting' && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 gap-3">
-            <p className="text-cyan-400 tracking-widest text-sm">Waiting for opponent...</p>
+            <p className="text-cyan-400 tracking-widest text-sm">{t('waitingOpponent')}</p>
             <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
           </div>
         )}
-
-        {/* 결과 오버레이 */}
         {phase === 'over' && result && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/85 gap-4">
-            <p className={`text-3xl font-bold ${
-              result.isWin === true ? 'text-cyan-400' :
-              result.isWin === false ? 'text-red-400' : 'text-yellow-400'
-            }`} style={{
-              textShadow: result.isWin === true ? '0 0 15px #00f5ff'
-                : result.isWin === false ? '0 0 15px #ff3333'
-                : '0 0 15px #ffe600'
-            }}>
-              {result.isWin === true ? 'WIN' : result.isWin === false ? 'LOSE' : 'DRAW'}
+            <p
+              className={`text-3xl font-bold ${
+                result.isWin === true ? 'text-cyan-400' :
+                result.isWin === false ? 'text-red-400' : 'text-yellow-400'
+              }`}
+              style={{
+                textShadow: result.isWin === true ? '0 0 15px #00f5ff'
+                  : result.isWin === false ? '0 0 15px #ff3333'
+                  : '0 0 15px #ffe600',
+              }}
+            >
+              {result.isWin === true ? t('win') : result.isWin === false ? t('lose') : t('draw')}
             </p>
-            <p className="text-gray-300 text-sm">My: {result.myScore.toLocaleString()}</p>
-            <p className="text-gray-300 text-sm">Opp: {result.opponentScore.toLocaleString()}</p>
-            <button onClick={() => router.push('/lobby')}
-              className="mt-2 px-6 py-2 border border-cyan-500 text-cyan-400 hover:bg-cyan-500/20 transition text-sm">
-              Back to Lobby
+            <p className="text-gray-300 text-sm">{t('score')}: {result.myScore.toLocaleString()}</p>
+            <p className="text-gray-300 text-sm">{t('opponent')}: {result.opponentScore.toLocaleString()}</p>
+            <button
+              onClick={() => router.push('/lobby')}
+              className="mt-2 px-6 py-2 border border-cyan-500 text-cyan-400 hover:bg-cyan-500/20 transition text-sm"
+            >
+              {t('backToLobby')}
             </button>
           </div>
         )}
       </div>
 
-      {/* 오른쪽 패널 */}
-      <div className="flex flex-col gap-4">
-        <NextPieces pieces={gameState.nextPieces} />
-        <div className="mt-4">
-          <OpponentMini
-            state={opponentState}
-            nickname={opponentNickname || 'Opponent'}
-            isConnected={opponentConnected}
-          />
-        </div>
+      {/* NEXT */}
+      <div style={{ width: panelW }}>
+        <NextPieces pieces={gameState.nextPieces} tier={tier} />
+      </div>
+
+      {/* 디바이더 */}
+      <div className="w-px self-stretch bg-[#1a1a2e]" />
+
+      {/* 상대방 rail */}
+      <div className="flex flex-col items-center" style={{ width: panelW + 16 }}>
+        <p className="text-[10px] text-red-500 uppercase tracking-widest mb-2">{t('opponent')}</p>
+        <OpponentMini
+          state={opponentState}
+          nickname={opponentNickname || t('opponent')}
+          isConnected={opponentConnected}
+          tier={tier}
+        />
       </div>
     </div>
   )
