@@ -9,9 +9,9 @@ function heightToTier(h: number): Tier {
 }
 
 export function useViewportTier(): Tier {
-  const [tier, setTier] = useState<Tier>(() =>
-    typeof window === 'undefined' ? 'md' : heightToTier(window.innerHeight)
-  )
+  // Always 'md' on first render so server and client HTML match.
+  // The effect below corrects it to the real viewport tier after mount.
+  const [tier, setTier] = useState<Tier>('md')
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout> | null = null
