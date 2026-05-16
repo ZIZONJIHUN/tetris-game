@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import Link from 'next/link'
+import AppShell from '@/components/AppShell'
 
 type LeaderboardRow = {
   player_id: string
@@ -23,15 +23,13 @@ export default async function LeaderboardPage() {
   const rows: LeaderboardRow[] = data ?? []
 
   return (
-    <main className="min-h-screen bg-[#0a0a1a] flex flex-col items-center py-12">
-      <div className="mb-8 flex items-center gap-4">
-        <Link href="/" className="text-gray-500 hover:text-gray-300 text-sm">← Back</Link>
-        <h1 className="text-yellow-400 font-bold text-2xl tracking-widest"
-          style={{ textShadow: '0 0 10px #ffe600' }}>
-          LEADERBOARD
-        </h1>
-      </div>
-
+    <AppShell>
+      <h1
+        className="text-yellow-400 font-bold text-2xl tracking-widest mb-8"
+        style={{ textShadow: '0 0 10px #ffe600' }}
+      >
+        LEADERBOARD
+      </h1>
       <div className="w-full max-w-2xl">
         <div className="grid grid-cols-5 text-xs text-gray-500 uppercase tracking-widest px-4 pb-2 border-b border-gray-800">
           <span>#</span>
@@ -40,8 +38,10 @@ export default async function LeaderboardPage() {
           <span className="text-right">Win Rate</span>
         </div>
         {rows.map((row, i) => (
-          <div key={row.player_id}
-            className="grid grid-cols-5 px-4 py-3 border-b border-gray-800/50 hover:bg-gray-800/20 transition items-center">
+          <div
+            key={row.player_id}
+            className="grid grid-cols-5 px-4 py-3 border-b border-gray-800/50 hover:bg-gray-800/20 transition items-center"
+          >
             <span className={`font-bold ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-orange-400' : 'text-gray-600'}`}>
               {i + 1}
             </span>
@@ -58,6 +58,6 @@ export default async function LeaderboardPage() {
           <p className="text-center text-gray-600 py-12">No records yet.</p>
         )}
       </div>
-    </main>
+    </AppShell>
   )
 }
