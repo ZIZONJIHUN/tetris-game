@@ -1,31 +1,22 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useUserProfile } from '@/contexts/UserProfileContext'
 import type { TranslationKey } from '@/lib/i18n'
 import AppShell from '@/components/AppShell'
 
 export default function MenuPage() {
   const router = useRouter()
   const { t } = useLanguage()
-  const [nickname, setNickname] = useState('')
-  const [isGuest, setIsGuest] = useState(false)
+  const { profile, loading } = useUserProfile()
+  const nickname = profile?.nickname ?? ''
+  const isGuest = profile?.isGuest ?? false
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) { router.push('/'); return }
-      supabase.from('profiles').select('nickname, is_guest').eq('id', user.id).single()
-        .then(({ data }) => {
-          if (data) {
-            setNickname(data.nickname)
-            setIsGuest(data.is_guest)
-          }
-        })
-    })
-  }, [router])
+    if (!loading && !profile) router.push('/')
+  }, [loading, profile, router])
 
   const menuItems: Array<{
     key: TranslationKey
