@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/contexts/LanguageContext'
 import type { TranslationKey } from '@/lib/i18n'
+import AppShell from '@/components/AppShell'
 
 export default function MenuPage() {
   const router = useRouter()
@@ -66,7 +67,8 @@ export default function MenuPage() {
   ]
 
   return (
-    <main className="min-h-screen bg-[#0a0a1a] flex flex-col items-center justify-center gap-10 px-4">
+    <AppShell>
+      <div className="flex flex-col items-center justify-center gap-10 min-h-[calc(100vh-4rem)] w-full">
       {/* 타이틀 */}
       <div className="text-center">
         <h1
@@ -116,6 +118,7 @@ export default function MenuPage() {
           )
         })}
       </div>
-    </main>
+      </div>
+    </AppShell>
   )
 }
