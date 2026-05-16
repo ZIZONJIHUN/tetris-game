@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
+import AppShell from '@/components/AppShell'
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -24,14 +24,13 @@ export default async function ProfilePage() {
   const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0
 
   return (
-    <main className="min-h-screen bg-[#0a0a1a] flex flex-col items-center py-12">
-      <div className="mb-8 flex items-center gap-4">
-        <Link href="/" className="text-gray-500 hover:text-gray-300 text-sm">← Back</Link>
-        <h1 className="text-purple-400 font-bold text-2xl tracking-widest"
-          style={{ textShadow: '0 0 10px #ff00ff' }}>
-          {profile.nickname}
-        </h1>
-      </div>
+    <AppShell>
+      <h1
+        className="text-purple-400 font-bold text-2xl tracking-widest mb-8"
+        style={{ textShadow: '0 0 10px #ff00ff' }}
+      >
+        {profile.nickname}
+      </h1>
 
       <div className="grid grid-cols-4 gap-4 mb-10 w-full max-w-2xl">
         {[
@@ -51,8 +50,10 @@ export default async function ProfilePage() {
         <h2 className="text-gray-400 text-sm uppercase tracking-widest mb-3">Recent Games</h2>
         <div className="flex flex-col gap-1">
           {results?.map(r => (
-            <div key={r.id}
-              className="flex items-center justify-between px-4 py-2 border border-gray-800/50">
+            <div
+              key={r.id}
+              className="flex items-center justify-between px-4 py-2 border border-gray-800/50"
+            >
               <span className={`text-sm font-bold ${r.is_win ? 'text-cyan-400' : 'text-red-400'}`}>
                 {r.is_win ? 'WIN' : 'LOSE'}
               </span>
@@ -68,6 +69,6 @@ export default async function ProfilePage() {
           )}
         </div>
       </div>
-    </main>
+    </AppShell>
   )
 }
