@@ -54,8 +54,8 @@ export default function SettingsButton() {
       {/* 기어 버튼 */}
       <button
         onClick={() => { setOpen(true); setConfirmLogout(false) }}
-        className="fixed top-4 right-4 z-50 w-9 h-9 flex items-center justify-center text-gray-500 hover:text-gray-300 border border-gray-700 hover:border-gray-500 bg-[#0a0a1a]/80 backdrop-blur transition"
-        style={{ fontSize: '18px' }}
+        className="fixed top-4 right-4 z-50 w-10 h-10 flex items-center justify-center rounded-md text-cyan-400 hover:text-cyan-200 border border-cyan-500/50 hover:border-cyan-400 bg-[#0a0a14]/90 backdrop-blur transition"
+        style={{ fontSize: '20px', boxShadow: '0 0 12px rgba(0,245,255,0.25)' }}
         aria-label="Settings"
       >
         ⚙
