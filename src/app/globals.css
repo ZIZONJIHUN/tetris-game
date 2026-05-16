@@ -12,14 +12,11 @@
   --font-mono: var(--font-share-tech-mono);
 }
 
+/* Orbitron(영문) + Noto Sans KR(한글) 폴백 체인 — 글리프 단위로 영문은 Orbitron, 한글은 Noto Sans KR 사용 */
 body {
   background: var(--background);
   color: var(--foreground);
-}
-
-/* Orbitron(영문) + Black Han Sans(한글) 폴백 체인 */
-*, *::before, *::after {
-  font-family: var(--font-orbitron), var(--font-black-han-sans), sans-serif;
+  font-family: var(--font-orbitron), var(--font-noto-kr), sans-serif;
 }
 
 /* 점수·숫자 표시에 Share Tech Mono 사용 */
