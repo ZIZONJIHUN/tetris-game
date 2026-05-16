@@ -59,7 +59,9 @@ export default function MenuPage() {
 
   return (
     <AppShell>
-      <div className="flex flex-col items-center justify-center gap-10 min-h-[calc(100vh-4rem)] w-full">
+      {/* 사이드바 폭에 영향받지 않고 화면(뷰포트) 정중앙에 배치 */}
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none">
+      <div className="flex flex-col items-center justify-center gap-10 pointer-events-auto">
       {/* 타이틀 */}
       <div className="text-center">
         <h1
@@ -108,6 +110,7 @@ export default function MenuPage() {
             </Link>
           )
         })}
+      </div>
       </div>
       </div>
     </AppShell>
