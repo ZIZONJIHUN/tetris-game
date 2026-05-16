@@ -63,22 +63,22 @@ export default function MenuPage() {
       {/* 타이틀 */}
       <div className="text-center">
         <h1
-          className="text-5xl font-bold tracking-widest text-cyan-400"
+          className="text-7xl font-bold tracking-widest text-cyan-400"
           style={{ textShadow: '0 0 25px #00f5ff, 0 0 50px #00f5ff33' }}
         >
           TETRIS
         </h1>
         {nickname && (
-          <p className="text-gray-500 mt-2 text-sm tracking-widest">
+          <p className="text-gray-500 mt-3 text-base tracking-widest">
             {nickname}
-            {isGuest && <span className="text-gray-700 ml-2 text-xs">(guest)</span>}
+            {isGuest && <span className="text-gray-700 ml-2 text-sm">(guest)</span>}
           </p>
         )}
       </div>
 
       {/* 모드 선택 */}
-      <div className="flex flex-col gap-3 w-72">
-        <p className="text-gray-600 text-xs uppercase tracking-widest text-center mb-1">
+      <div className="flex flex-col gap-4 w-[420px]">
+        <p className="text-gray-600 text-sm uppercase tracking-widest text-center mb-1">
           {t('selectMode')}
         </p>
         {menuItems.map(item => {
@@ -89,7 +89,7 @@ export default function MenuPage() {
               href={disabled ? '#' : item.href}
               onClick={disabled ? (e) => e.preventDefault() : undefined}
               className={`
-                flex items-center gap-4 px-6 py-4 border font-bold tracking-widest transition
+                flex items-center gap-5 px-7 py-5 border font-bold tracking-widest transition
                 ${item.color}
                 ${disabled
                   ? 'opacity-30 cursor-not-allowed border-gray-700 text-gray-600'
@@ -98,8 +98,8 @@ export default function MenuPage() {
               `}
               style={disabled ? {} : { boxShadow: `0 0 16px ${item.glow}` }}
             >
-              <span className="text-xl">{item.icon}</span>
-              <span className="text-base">{t(item.key)}</span>
+              <span className="text-2xl">{item.icon}</span>
+              <span className="text-lg">{t(item.key)}</span>
               {disabled && (
                 <span className="ml-auto text-xs text-gray-700 font-normal normal-case tracking-normal">
                   login required
