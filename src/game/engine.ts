@@ -92,6 +92,10 @@ export function createInitialState(bag: PieceType[]): GameState {
     speed: 1000,
     status: 'idle',
     flashRows: [],
+    tetrisCount: 0,
+    comboCount: 0,
+    maxCombo: 0,
+    perfectClears: 0,
   }
 }
 

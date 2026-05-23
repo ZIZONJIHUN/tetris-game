@@ -23,6 +23,11 @@ export type GameState = {
   speed: number           // ms per tick
   status: GameStatus
   flashRows: number[]     // 라인 클리어 애니메이션 대상 행
+  // === level-system additions ===
+  tetrisCount: number     // # of 4-line clears this game
+  comboCount: number      // current consecutive-clear streak (0 if last lock didn't clear)
+  maxCombo: number        // peak comboCount this game
+  perfectClears: number   // # of clears that emptied the board this game
 }
 
 // Realtime 동기화용 경량 상태
