@@ -472,3 +472,87 @@ describe('tick', () => {
     expect(tick(s)).toBe(s)
   })
 })
+
+describe('event counters', () => {
+  it('increments tetrisCount when 4 lines clear at once', () => {
+    // Build a board where bottom 4 rows are filled except col 0
+    let state = createInitialState(createBag())
+    state = startGame(state)
+    const board4 = [
+      ...Array.from({ length: 16 }, () => emptyRow()),
+      Array(10).fill(0).map((_, i) => i === 0 ? 0 : 1),
+      Array(10).fill(0).map((_, i) => i === 0 ? 0 : 1),
+      Array(10).fill(0).map((_, i) => i === 0 ? 0 : 1),
+      Array(10).fill(0).map((_, i) => i === 0 ? 0 : 1),
+    ]
+    state = {
+      ...state,
+      board: board4,
+      currentPiece: { type: 'I', rotation: 1, x: -2, y: 0 },
+      ghostY: calcGhostY(board4, 'I', 1, -2, 0),
+      tetrisCount: 0,
+      comboCount: 0,
+      maxCombo: 0,
+      perfectClears: 0,
+    }
+    state = hardDrop(state)
+    expect(state.tetrisCount).toBe(1)
+    expect(state.maxCombo).toBe(1)
+    expect(state.comboCount).toBe(1)
+  })
+
+  it('does not increment tetrisCount when fewer than 4 lines clear', () => {
+    let state = createInitialState(createBag())
+    state = startGame(state)
+    const board1 = [
+      ...Array.from({ length: 19 }, () => emptyRow()),
+      Array(10).fill(0).map((_, i) => i === 0 ? 0 : 1),
+    ]
+    state = {
+      ...state,
+      board: board1,
+      currentPiece: { type: 'I', rotation: 1, x: -2, y: 0 },
+      ghostY: calcGhostY(board1, 'I', 1, -2, 0),
+      tetrisCount: 0,
+      comboCount: 0,
+      maxCombo: 0,
+      perfectClears: 0,
+    }
+    state = hardDrop(state)
+    expect(state.tetrisCount).toBe(0)
+    expect(state.comboCount).toBe(1)
+  })
+
+  it('resets comboCount when a lock clears no lines', () => {
+    let state = createInitialState(createBag())
+    state = startGame(state)
+    state = { ...state, comboCount: 5, maxCombo: 5 }
+    // Drop a piece on an empty board → no line cleared
+    state = hardDrop(state)
+    expect(state.comboCount).toBe(0)
+    expect(state.maxCombo).toBe(5)  // peak preserved
+  })
+
+  it('increments perfectClears when the board is fully empty after clear', () => {
+    // I-piece rotation 0 fills a single row (matrix row 1) at cols x..x+3.
+    // Board: only row 19 partially filled at cols 0-5; cols 6-9 empty.
+    // Drop I-piece rotation 0 at x=6 → fills row 19 cols 6-9 → row 19 full → cleared.
+    // No other rows are touched, so board is fully empty after clear → perfectClear.
+    let state = createInitialState(createBag())
+    state = startGame(state)
+    const boardPc = [
+      ...Array.from({ length: 19 }, () => emptyRow()),
+      [1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
+    ]
+    state = {
+      ...state,
+      board: boardPc,
+      currentPiece: { type: 'I', rotation: 0, x: 6, y: 0 },
+      ghostY: calcGhostY(boardPc, 'I', 0, 6, 0),
+      perfectClears: 0,
+    }
+    state = hardDrop(state)
+    // After hard-drop + clear, board should be entirely empty
+    expect(state.perfectClears).toBe(1)
+  })
+})

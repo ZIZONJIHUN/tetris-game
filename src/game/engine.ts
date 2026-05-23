@@ -172,19 +172,21 @@ export function calcSpeed(level: number): number {
 // lockAndSpawn (private helper)
 // ────────────────────────────────────────────────────────────
 function lockAndSpawn(state: GameState): GameState {
-  // 1. Lock current piece onto the board
   const lockedState = lockPiece(state)
-
-  // 2. Clear completed lines
   const { board: clearedBoard, linesCleared } = clearLines(lockedState.board)
 
-  // 3. Recalculate lines, level, score, speed
   const newLines = state.lines + linesCleared
   const newLevel = calcLevel(newLines)
   const newScore = lockedState.score + calcScore(linesCleared, newLevel, 0)
   const newSpeed = calcSpeed(newLevel)
 
-  // 4. Spawn next piece (reset to spawn position)
+  // === level-system counters ===
+  const newTetrisCount = state.tetrisCount + (linesCleared === 4 ? 1 : 0)
+  const newComboCount  = linesCleared > 0 ? state.comboCount + 1 : 0
+  const newMaxCombo    = Math.max(state.maxCombo, newComboCount)
+  const isBoardEmpty   = clearedBoard.every(row => row.every(cell => cell === 0))
+  const newPerfectClears = state.perfectClears + (linesCleared > 0 && isBoardEmpty ? 1 : 0)
+
   const newCurrentPiece: Piece = {
     ...state.nextPieces[0],
     rotation: 0,
@@ -192,14 +194,12 @@ function lockAndSpawn(state: GameState): GameState {
     y: SPAWN_Y,
   }
 
-  // 5. Pop a new piece for the queue
   const { piece: newNextType, bag: newBag } = popPiece(state.pieceBag)
   const newNextPieces: Piece[] = [
     ...state.nextPieces.slice(1),
     { type: newNextType, rotation: 0, x: SPAWN_X, y: SPAWN_Y },
   ]
 
-  // 6. Check game over
   const isOver = !isValidPosition(clearedBoard, newCurrentPiece.type, 0, SPAWN_X, SPAWN_Y)
   const ghostY = isOver
     ? SPAWN_Y
@@ -218,6 +218,10 @@ function lockAndSpawn(state: GameState): GameState {
     speed: newSpeed,
     status: isOver ? 'over' : state.status,
     flashRows: [],
+    tetrisCount: newTetrisCount,
+    comboCount: newComboCount,
+    maxCombo: newMaxCombo,
+    perfectClears: newPerfectClears,
   }
 }
 
