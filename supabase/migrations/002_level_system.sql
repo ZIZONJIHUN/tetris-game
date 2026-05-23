@@ -18,6 +18,14 @@ alter table public.game_results
 alter table public.game_results
   add constraint game_results_room_player_unique unique (room_id, player_id);
 
+-- Defense in depth: battle mode must have opponent_score and is_win populated
+alter table public.game_results
+  add constraint game_results_battle_requires_opponent
+  check (
+    mode = 'solo'
+    or (opponent_score is not null and is_win is not null)
+  );
+
 -- 2. player_stats — denormalized cache, single source for leaderboards & profile
 create table public.player_stats (
   player_id        uuid primary key references public.profiles on delete cascade,
@@ -39,6 +47,10 @@ create table public.player_stats (
 alter table public.player_stats enable row level security;
 create policy "stats public read" on public.player_stats for select using (true);
 -- No INSERT/UPDATE policies → only security-definer RPC can write
+
+create index player_stats_level_xp_idx   on public.player_stats (level desc, xp desc);
+create index player_stats_best_score_idx on public.player_stats (best_score desc);
+create index player_stats_mmr_idx        on public.player_stats (mmr desc);
 
 -- 3. achievements catalog
 create table public.achievements (
@@ -70,8 +82,11 @@ create policy "player_achievements public read"
   on public.player_achievements for select using (true);
 -- No INSERT policy → only RPC writes
 
+create index player_achievements_by_achievement_idx
+  on public.player_achievements (achievement_id);
+
 -- 5. Replace leaderboard_view to use player_stats
-drop view public.leaderboard_view;
+drop view if exists public.leaderboard_view;
 create view public.leaderboard_view as
 select
   p.id           as player_id,
