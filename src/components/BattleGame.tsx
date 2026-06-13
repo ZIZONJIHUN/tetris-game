@@ -22,7 +22,7 @@ export default function BattleGame({ roomId }: { roomId: string }) {
   const router = useRouter()
   const {
     gameState, actions, phase, countdown, timeLeft,
-    myNickname, opponentNickname, opponentConnected, opponentState,
+    myNickname, opponentNickname, opponentConnected, opponentState, opponentId,
     finalizeResult, finalizing, finalizeError,
   } = useBattle(roomId)
 
@@ -104,6 +104,7 @@ export default function BattleGame({ roomId }: { roomId: string }) {
           state={opponentState}
           nickname={opponentNickname || t('opponent')}
           isConnected={opponentConnected}
+          opponentId={opponentId || null}
           tier={tier}
         />
       </div>
