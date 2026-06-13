@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useUserProfile } from '@/contexts/UserProfileContext'
 import UserMiniProfile from './UserMiniProfile'
@@ -16,49 +16,49 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { href: '/menu', labelKey: 'navMenu', icon: '▢' },
-  { href: '/play', labelKey: 'navPlay', icon: '▶' },
   { href: '/lobby', labelKey: 'navBattle', icon: '⚔' },
   { href: '/leaderboard', labelKey: 'navBoard', icon: '★' },
   { href: '/profile', labelKey: 'navProfile', icon: '◍', guestDisabled: true },
 ]
 
-const STORAGE_KEY = 'sidebar_collapsed'
-
 export default function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const { t } = useLanguage()
   const { profile } = useUserProfile()
   const isGuest = profile?.isGuest ?? false
-  const [collapsed, setCollapsed] = useState(false)
+  const [hovered, setHovered] = useState(false)
+  const [pendingHref, setPendingHref] = useState<string | null>(null)
 
-  useEffect(() => {
-    setCollapsed(localStorage.getItem(STORAGE_KEY) === '1')
-  }, [])
+  const expanded = hovered
+  const inGame = pathname === '/play' || pathname.startsWith('/battle/')
 
-  function toggle() {
-    setCollapsed(prev => {
-      const next = !prev
-      localStorage.setItem(STORAGE_KEY, next ? '1' : '0')
-      return next
-    })
+  function handleNav(e: React.MouseEvent, href: string) {
+    if (inGame) {
+      e.preventDefault()
+      setPendingHref(href)
+    }
   }
 
   return (
     <aside
-      className={`${collapsed ? 'w-[64px]' : 'w-[200px]'} shrink-0 bg-[#0a0a14] border-r border-[#1a1a2e] flex flex-col h-screen sticky top-0 transition-[width] duration-200`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className={`${expanded ? 'w-[200px]' : 'w-[64px]'} fixed left-0 top-0 z-40 bg-[#0a0a14] border-r border-[#1a1a2e] flex flex-col h-screen transition-[width] duration-200`}
     >
       {/* Logo */}
       <Link
         href="/menu"
-        className={`flex items-center ${collapsed ? 'justify-center' : ''} text-cyan-400 font-bold tracking-[2px] px-4 py-4`}
-        style={{ textShadow: '0 0 8px #00f5ff', fontSize: collapsed ? '20px' : '18px' }}
+        onClick={e => handleNav(e, '/menu')}
+        className={`flex items-center ${!expanded ? 'justify-center' : ''} text-cyan-400 font-bold tracking-[2px] px-4 py-4`}
+        style={{ textShadow: '0 0 8px #00f5ff', fontSize: !expanded ? '20px' : '18px' }}
       >
-        {collapsed ? 'T' : 'TETRIS'}
+        {!expanded ? 'T' : 'TETRIS'}
       </Link>
 
       {/* Profile */}
       <div className="px-3">
-        <UserMiniProfile collapsed={collapsed} />
+        <UserMiniProfile collapsed={!expanded} />
       </div>
 
       {/* Nav */}
@@ -69,16 +69,16 @@ export default function Sidebar() {
             (item.href === '/lobby' && pathname.startsWith('/battle/'))
           const disabled = item.guestDisabled && isGuest
           const label = t(item.labelKey)
-          const base = `flex items-center ${collapsed ? 'justify-center' : 'gap-2.5'} rounded px-2 py-2 text-sm tracking-wide transition`
+          const base = `flex items-center ${!expanded ? 'justify-center' : 'gap-2.5'} rounded px-2 py-2 text-sm tracking-wide transition`
           if (disabled) {
             return (
               <span
                 key={item.href}
-                title={collapsed ? label : undefined}
+                title={!expanded ? label : undefined}
                 className={`${base} text-gray-700 cursor-not-allowed select-none`}
               >
                 <span className="text-base">{item.icon}</span>
-                {!collapsed && <span>{label}</span>}
+                {expanded && <span>{label}</span>}
               </span>
             )
           }
@@ -86,7 +86,8 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              title={collapsed ? label : undefined}
+              onClick={e => handleNav(e, item.href)}
+              title={!expanded ? label : undefined}
               className={`${base} ${
                 active
                   ? 'text-fuchsia-400 bg-fuchsia-500/10'
@@ -95,20 +96,46 @@ export default function Sidebar() {
               style={active ? { textShadow: '0 0 6px #f0f' } : {}}
             >
               <span className="text-base">{item.icon}</span>
-              {!collapsed && <span>{label}</span>}
+              {expanded && <span>{label}</span>}
             </Link>
           )
         })}
       </nav>
 
-      {/* Collapse toggle */}
-      <button
-        onClick={toggle}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        className="mt-auto mb-3 mx-2 flex items-center justify-center rounded py-2 text-gray-500 hover:text-cyan-400 hover:bg-white/5 transition text-sm"
-      >
-        {collapsed ? '»' : '«'}
-      </button>
+      {/* 게임 이탈 확인 모달 */}
+      {pendingHref && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setPendingHref(null)}
+        >
+          <div
+            className="bg-[#0d0d1f] border border-gray-700 p-6 w-80 flex flex-col gap-5"
+            style={{ boxShadow: '0 0 30px rgba(0,0,0,0.8)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="text-gray-200 text-sm text-center tracking-wide leading-relaxed">
+              {t('leaveGameConfirm')}
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  router.push(pendingHref)
+                  setPendingHref(null)
+                }}
+                className="flex-1 py-2 border border-red-600 text-red-400 hover:bg-red-900/30 transition text-sm tracking-widest"
+              >
+                {t('leaveGame')}
+              </button>
+              <button
+                onClick={() => setPendingHref(null)}
+                className="flex-1 py-2 border border-gray-700 text-gray-400 hover:border-gray-500 transition text-sm tracking-widest"
+              >
+                {t('cancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   )
 }

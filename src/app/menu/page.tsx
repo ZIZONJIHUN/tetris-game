@@ -59,9 +59,8 @@ export default function MenuPage() {
 
   return (
     <AppShell>
-      {/* 사이드바 폭에 영향받지 않고 화면(뷰포트) 정중앙에 배치 */}
-      <div className="fixed inset-0 flex items-center justify-center pointer-events-none">
-      <div className="flex flex-col items-center justify-center gap-10 pointer-events-auto">
+      {/* 사이드바는 오버레이라 레이아웃 폭을 차지하지 않음 → 화면 전체 기준 중앙 */}
+      <div className="flex flex-1 flex-col items-center justify-center gap-10">
       {/* 타이틀 */}
       <div className="text-center">
         <h1
@@ -110,7 +109,6 @@ export default function MenuPage() {
             </Link>
           )
         })}
-      </div>
       </div>
       </div>
     </AppShell>
