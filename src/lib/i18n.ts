@@ -91,6 +91,17 @@ export const translations = {
     tierGold: 'Gold',
     tierPlatinum: 'Platinum',
     tierDiamond: 'Diamond',
+    // Leaderboard page
+    leaderboardTitle: 'LEADERBOARD',
+    tabBestScore: 'Best Score',
+    tabLevel: 'Level',
+    leaderboardEmpty: 'No records yet.',
+    columnPlayer: 'Player',
+    columnWinRate: 'Win Rate',
+    // Profile page
+    profileAchievements: 'Achievements',
+    profileRecentGames: 'Recent Games',
+    profileNoGames: 'No games played yet.',
   },
   ko: {
     // Home
@@ -182,6 +193,17 @@ export const translations = {
     tierGold: '골드',
     tierPlatinum: '플래티넘',
     tierDiamond: '다이아몬드',
+    // Leaderboard page
+    leaderboardTitle: '리더보드',
+    tabBestScore: '최고 점수',
+    tabLevel: '레벨',
+    leaderboardEmpty: '아직 기록이 없습니다.',
+    columnPlayer: '플레이어',
+    columnWinRate: '승률',
+    // Profile page
+    profileAchievements: '업적',
+    profileRecentGames: '최근 게임',
+    profileNoGames: '아직 플레이한 게임이 없습니다.',
   },
 } satisfies Record<Lang, Record<string, string>>
 

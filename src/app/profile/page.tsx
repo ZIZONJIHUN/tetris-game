@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import AppShell from '@/components/AppShell'
 import { tierForLevel, totalXpFor, xpToNext } from '@/lib/leveling/xp'
 import { TIER_COLORS } from '@/lib/leveling/tierColors'
+import { ProfileAchievementsHeading, ProfileRecentGamesHeading, ProfileNoGames } from './ProfileSectionHeadings'
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -89,9 +90,7 @@ export default async function ProfilePage() {
 
       {/* Achievements */}
       <div className="w-full max-w-2xl mb-10">
-        <h2 className="text-gray-400 text-sm uppercase tracking-widest mb-3">
-          Achievements ({earnedSet.size}/{allAchievements?.length ?? 0})
-        </h2>
+        <ProfileAchievementsHeading earnedCount={earnedSet.size} totalCount={allAchievements?.length ?? 0} />
         <div className="grid grid-cols-3 gap-2">
           {(allAchievements ?? []).map(a => {
             const got = earnedSet.has(a.id)
@@ -114,7 +113,7 @@ export default async function ProfilePage() {
 
       {/* Recent games */}
       <div className="w-full max-w-2xl">
-        <h2 className="text-gray-400 text-sm uppercase tracking-widest mb-3">Recent Games</h2>
+        <ProfileRecentGamesHeading />
         <div className="flex flex-col gap-1">
           {results?.map(r => (
             <div key={r.id} className="flex items-center justify-between px-4 py-2 border border-gray-800/50">
@@ -128,7 +127,7 @@ export default async function ProfilePage() {
               <span className="text-gray-600 text-xs">{new Date(r.played_at).toLocaleDateString()}</span>
             </div>
           ))}
-          {totalGames === 0 && <p className="text-center text-gray-600 py-8">No games played yet.</p>}
+          {totalGames === 0 && <ProfileNoGames />}
         </div>
       </div>
     </AppShell>

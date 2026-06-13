@@ -1,9 +1,10 @@
 // src/app/leaderboard/page.tsx
 import { createClient } from '@/lib/supabase/server'
 import AppShell from '@/components/AppShell'
-import Link from 'next/link'
 import { tierForLevel } from '@/lib/leveling/xp'
 import { TIER_COLORS } from '@/lib/leveling/tierColors'
+import LeaderboardHeader from './LeaderboardHeader'
+import LeaderboardEmpty from './LeaderboardEmpty'
 
 type LeaderboardRow = {
   player_id: string
@@ -36,18 +37,7 @@ export default async function LeaderboardPage({ searchParams }: { searchParams: 
 
   return (
     <AppShell>
-      <h1 className="text-yellow-400 font-bold text-2xl tracking-widest mb-4" style={{ textShadow: '0 0 10px #ffe600' }}>
-        LEADERBOARD
-      </h1>
-
-      <div className="flex gap-3 mb-4 text-sm">
-        <Link href="/leaderboard?sort=score" className={orderBy === 'best_score' ? 'text-cyan-400 border-b-2 border-cyan-400 pb-1' : 'text-gray-500'}>
-          Best Score
-        </Link>
-        <Link href="/leaderboard?sort=level" className={orderBy === 'level' ? 'text-cyan-400 border-b-2 border-cyan-400 pb-1' : 'text-gray-500'}>
-          Level
-        </Link>
-      </div>
+      <LeaderboardHeader orderBy={orderBy} />
 
       <div className="w-full max-w-2xl">
         <div className="grid grid-cols-6 text-xs text-gray-500 uppercase tracking-widest px-4 pb-2 border-b border-gray-800">
@@ -79,7 +69,7 @@ export default async function LeaderboardPage({ searchParams }: { searchParams: 
             </div>
           )
         })}
-        {rows.length === 0 && <p className="text-center text-gray-600 py-12">No records yet.</p>}
+        {rows.length === 0 && <LeaderboardEmpty />}
       </div>
     </AppShell>
   )
