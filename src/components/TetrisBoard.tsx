@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react'
 import { Piece } from '@/game/types'
 import { PIECE_COLORS, PIECE_ID, getPieceCells } from '@/game/pieces'
 import { getCellSize, type Tier } from '@/lib/tierSizes'
+import { SkinKey, BLOCK_SKIN_COLORS, BOARD_SKIN_BACKGROUND } from '@/lib/leveling/skins'
 
 const MINI_CELL = 12
 
@@ -13,6 +14,7 @@ type Props = {
   mini?: boolean
   flashRows?: number[]
   tier?: Tier  // default 'md' (mini 모드일 땐 사용 안 함)
+  skin?: SkinKey | null
 }
 
 function drawCell(
@@ -33,21 +35,29 @@ function drawCell(
 }
 
 export default function TetrisBoard({
-  board, currentPiece, ghostY, mini = false, flashRows = [], tier,
+  board, currentPiece, ghostY, mini = false, flashRows = [], tier, skin,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const cellSize = mini ? MINI_CELL : getCellSize(tier ?? 'md').board
   const width = 10 * cellSize
   const height = 20 * cellSize
 
+  const boardBg = skin ? BOARD_SKIN_BACKGROUND[skin] : undefined
+  const blockTint = skin ? BLOCK_SKIN_COLORS[skin] : undefined
+
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')!
 
-    // Background
-    ctx.fillStyle = '#0a0a1a'
-    ctx.fillRect(0, 0, width, height)
+    // Background — skip canvas fill when a CSS gradient background skin is active
+    if (!boardBg) {
+      ctx.fillStyle = '#0a0a1a'
+      ctx.fillRect(0, 0, width, height)
+    } else {
+      // Clear to transparent so the CSS gradient shows through
+      ctx.clearRect(0, 0, width, height)
+    }
 
     // Grid lines
     ctx.strokeStyle = '#1a1a2e'
@@ -68,7 +78,8 @@ export default function TetrisBoard({
           ctx.fillStyle = '#ffffff'
           ctx.fillRect(c * cellSize + 1, r * cellSize + 1, cellSize - 2, cellSize - 2)
         } else {
-          drawCell(ctx, c, r, PIECE_COLORS[id], cellSize, !mini)
+          const color = blockTint ?? PIECE_COLORS[id]
+          drawCell(ctx, c, r, color, cellSize, !mini)
         }
       }
     }
@@ -93,7 +104,7 @@ export default function TetrisBoard({
         if (r >= 0) drawCell(ctx, c, r, color, cellSize, true)
       }
     }
-  }, [board, currentPiece, ghostY, mini, flashRows, cellSize, width, height])
+  }, [board, currentPiece, ghostY, mini, flashRows, cellSize, width, height, boardBg, blockTint])
 
   return (
     <canvas
@@ -101,7 +112,10 @@ export default function TetrisBoard({
       width={width}
       height={height}
       className="border border-cyan-500/30"
-      style={{ boxShadow: mini ? 'none' : '0 0 20px rgba(0,245,255,0.1)' }}
+      style={{
+        boxShadow: mini ? 'none' : '0 0 20px rgba(0,245,255,0.1)',
+        background: boardBg ?? undefined,
+      }}
     />
   )
 }

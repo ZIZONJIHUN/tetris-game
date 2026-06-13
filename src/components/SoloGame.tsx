@@ -13,11 +13,13 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { getPanelWidth } from '@/lib/tierSizes'
 import { finalizeGame, FinalizeGameResult } from '@/lib/leveling/finalize'
 import { useRouter } from 'next/navigation'
+import { useUserProfile } from '@/contexts/UserProfileContext'
 
 export default function SoloGame() {
   const { state, actions } = useGame()
   const { t } = useLanguage()
   const tier = useViewportTier()
+  const { profile } = useUserProfile()
   useKeyboard(actions, state.status === 'playing')
   const router = useRouter()
 
@@ -91,6 +93,7 @@ export default function SoloGame() {
           ghostY={state.ghostY}
           flashRows={state.flashRows}
           tier={tier}
+          skin={profile?.activeSkin ?? null}
         />
         <BoardEffects effect={effect} />
         {state.status === 'idle' && (

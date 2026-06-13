@@ -12,6 +12,7 @@ import GameEndModal from './GameEndModal'
 import { useViewportTier } from '@/hooks/useViewportTier'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { getPanelWidth } from '@/lib/tierSizes'
+import { useUserProfile } from '@/contexts/UserProfileContext'
 
 function formatTime(ms: number) {
   const secs = Math.ceil(ms / 1000)
@@ -32,6 +33,7 @@ export default function BattleGame({ roomId }: { roomId: string }) {
   const tier = useViewportTier()
   const { t } = useLanguage()
   const panelW = getPanelWidth(tier)
+  const { profile } = useUserProfile()
 
   const [effect, setEffect] = useState<BoardEffect | null>(null)
   const prevStats = useRef({ tetrisCount: 0, perfectClears: 0, maxCombo: 0 })
@@ -80,6 +82,7 @@ export default function BattleGame({ roomId }: { roomId: string }) {
           ghostY={gameState.ghostY}
           flashRows={gameState.flashRows}
           tier={tier}
+          skin={profile?.activeSkin ?? null}
         />
         <BoardEffects effect={effect} />
         {phase === 'countdown' && (

@@ -2,6 +2,7 @@
 'use client'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { SkinKey } from '@/lib/leveling/skins'
 
 export type UserProfile = {
   id: string
@@ -13,6 +14,7 @@ export type UserProfile = {
   xp: number
   mmr: number
   activeBadge: string | null
+  activeSkin: SkinKey | null
 }
 
 type Ctx = {
@@ -45,7 +47,7 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
 
       const { data: stats } = await supabase
         .from('player_stats')
-        .select('xp, level, mmr, best_score, active_badge_id')
+        .select('xp, level, mmr, best_score, active_badge_id, active_skin_id')
         .eq('player_id', user.id)
         .maybeSingle()
 
@@ -59,6 +61,16 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
         rank = (count ?? 0) + 1
       }
 
+      let activeSkin: SkinKey | null = null
+      if (stats?.active_skin_id) {
+        const { data: ach } = await supabase
+          .from('achievements')
+          .select('skin_key')
+          .eq('id', stats.active_skin_id)
+          .maybeSingle()
+        activeSkin = (ach?.skin_key ?? null) as SkinKey | null
+      }
+
       if (cancelled) return
       setProfile({
         id: user.id,
@@ -70,6 +82,7 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
         xp: stats?.xp ?? 0,
         mmr: stats?.mmr ?? 1200,
         activeBadge: stats?.active_badge_id ?? null,
+        activeSkin,
       })
       setLoading(false)
     }
