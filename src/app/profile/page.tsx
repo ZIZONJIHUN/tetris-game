@@ -5,6 +5,7 @@ import AppShell from '@/components/AppShell'
 import { tierForLevel, totalXpFor, xpToNext } from '@/lib/leveling/xp'
 import { TIER_COLORS } from '@/lib/leveling/tierColors'
 import { ProfileAchievementsHeading, ProfileRecentGamesHeading, ProfileNoGames } from './ProfileSectionHeadings'
+import CosmeticPanel from './CosmeticPanel'
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -110,6 +111,21 @@ export default async function ProfilePage() {
           })}
         </div>
       </div>
+
+      <CosmeticPanel
+        ownedBadges={
+          (allAchievements ?? [])
+            .filter(a => earnedSet.has(a.id) && a.badge_label)
+            .map(a => ({ id: a.id, label: a.badge_label! }))
+        }
+        ownedSkins={
+          (allAchievements ?? [])
+            .filter(a => earnedSet.has(a.id) && a.skin_key)
+            .map(a => ({ id: a.id, label: a.skin_key! }))
+        }
+        activeBadge={stats?.active_badge_id ?? null}
+        activeSkin={stats?.active_skin_id ?? null}
+      />
 
       {/* Recent games */}
       <div className="w-full max-w-2xl">
