@@ -1,8 +1,10 @@
 'use client'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useBattle } from '@/hooks/useBattle'
 import { useKeyboard } from '@/hooks/useKeyboard'
 import TetrisBoard from './TetrisBoard'
+import BoardEffects, { BoardEffect } from './BoardEffects'
 import HoldPiece from './HoldPiece'
 import NextPieces from './NextPieces'
 import OpponentMini from './OpponentMini'
@@ -30,6 +32,17 @@ export default function BattleGame({ roomId }: { roomId: string }) {
   const tier = useViewportTier()
   const { t } = useLanguage()
   const panelW = getPanelWidth(tier)
+
+  const [effect, setEffect] = useState<BoardEffect | null>(null)
+  const prevStats = useRef({ tetrisCount: 0, perfectClears: 0, maxCombo: 0 })
+
+  useEffect(() => {
+    const p = prevStats.current
+    if (gameState.tetrisCount > p.tetrisCount) setEffect({ kind: 'tetris' })
+    else if (gameState.perfectClears > p.perfectClears) setEffect({ kind: 'perfect' })
+    else if (gameState.maxCombo >= 5 && gameState.maxCombo > p.maxCombo) setEffect({ kind: 'combo', count: gameState.maxCombo })
+    prevStats.current = { tetrisCount: gameState.tetrisCount, perfectClears: gameState.perfectClears, maxCombo: gameState.maxCombo }
+  }, [gameState.tetrisCount, gameState.perfectClears, gameState.maxCombo])
 
   return (
     <div className="flex items-start gap-3 justify-center">
@@ -68,6 +81,7 @@ export default function BattleGame({ roomId }: { roomId: string }) {
           flashRows={gameState.flashRows}
           tier={tier}
         />
+        <BoardEffects effect={effect} />
         {phase === 'countdown' && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60">
             <span className="text-8xl font-bold text-cyan-400" style={{ textShadow: '0 0 30px #00f5ff' }}>

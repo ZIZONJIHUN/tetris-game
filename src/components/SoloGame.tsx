@@ -5,6 +5,7 @@ import { useGame } from '@/hooks/useGame'
 import { useKeyboard } from '@/hooks/useKeyboard'
 import { useViewportTier } from '@/hooks/useViewportTier'
 import TetrisBoard from './TetrisBoard'
+import BoardEffects, { BoardEffect } from './BoardEffects'
 import HoldPiece from './HoldPiece'
 import NextPieces from './NextPieces'
 import GameEndModal from './GameEndModal'
@@ -24,6 +25,17 @@ export default function SoloGame() {
   const [finalizeResult, setFinalizeResult] = useState<FinalizeGameResult | null>(null)
   const [finalizeError, setFinalizeError] = useState<string | null>(null)
   const prevStatus = useRef(state.status)
+
+  const [effect, setEffect] = useState<BoardEffect | null>(null)
+  const prevStats = useRef({ tetrisCount: 0, perfectClears: 0, maxCombo: 0 })
+
+  useEffect(() => {
+    const p = prevStats.current
+    if (state.tetrisCount > p.tetrisCount) setEffect({ kind: 'tetris' })
+    else if (state.perfectClears > p.perfectClears) setEffect({ kind: 'perfect' })
+    else if (state.maxCombo >= 5 && state.maxCombo > p.maxCombo) setEffect({ kind: 'combo', count: state.maxCombo })
+    prevStats.current = { tetrisCount: state.tetrisCount, perfectClears: state.perfectClears, maxCombo: state.maxCombo }
+  }, [state.tetrisCount, state.perfectClears, state.maxCombo])
 
   useEffect(() => {
     if (prevStatus.current === 'playing' && state.status === 'over') {
@@ -80,6 +92,7 @@ export default function SoloGame() {
           flashRows={state.flashRows}
           tier={tier}
         />
+        <BoardEffects effect={effect} />
         {state.status === 'idle' && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/70">
             <button
