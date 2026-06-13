@@ -1,3 +1,4 @@
+// src/contexts/UserProfileContext.tsx
 'use client'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -7,19 +8,25 @@ export type UserProfile = {
   nickname: string
   isGuest: boolean
   bestScore: number
-  rank: number | null  // null if no games played
+  rank: number | null
+  level: number
+  xp: number
+  mmr: number
+  activeBadge: string | null
 }
 
 type Ctx = {
   profile: UserProfile | null
   loading: boolean
+  refresh: () => void
 }
 
-const UserProfileContext = createContext<Ctx>({ profile: null, loading: true })
+const UserProfileContext = createContext<Ctx>({ profile: null, loading: true, refresh: () => {} })
 
 export function UserProfileProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [tick, setTick] = useState(0)
 
   useEffect(() => {
     const supabase = createClient()
@@ -34,17 +41,15 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
         .select('nickname, is_guest')
         .eq('id', user.id)
         .single()
-      if (cancelled) return
-      if (!prof) { setLoading(false); return }
+      if (cancelled || !prof) { setLoading(false); return }
 
-      // Best score from leaderboard_view (already aggregated)
-      const { data: row } = await supabase
-        .from('leaderboard_view')
-        .select('best_score')
+      const { data: stats } = await supabase
+        .from('player_stats')
+        .select('xp, level, mmr, best_score, active_badge_id')
         .eq('player_id', user.id)
         .maybeSingle()
-      const bestScore = row?.best_score ?? 0
 
+      const bestScore = stats?.best_score ?? 0
       let rank: number | null = null
       if (bestScore > 0) {
         const { count } = await supabase
@@ -61,16 +66,20 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
         isGuest: prof.is_guest,
         bestScore,
         rank,
+        level: stats?.level ?? 1,
+        xp: stats?.xp ?? 0,
+        mmr: stats?.mmr ?? 1200,
+        activeBadge: stats?.active_badge_id ?? null,
       })
       setLoading(false)
     }
 
     load()
     return () => { cancelled = true }
-  }, [])
+  }, [tick])
 
   return (
-    <UserProfileContext.Provider value={{ profile, loading }}>
+    <UserProfileContext.Provider value={{ profile, loading, refresh: () => setTick(t => t + 1) }}>
       {children}
     </UserProfileContext.Provider>
   )
