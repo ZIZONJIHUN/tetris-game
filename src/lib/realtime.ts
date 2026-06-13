@@ -57,7 +57,7 @@ export function createBattleChannel(
   roomId: string,
   userId: string,
   nickname: string,
-  onOpponentJoined: (opponentNickname: string) => void,
+  onOpponentJoined: (opponentNickname: string, opponentUserId: string) => void,
   onOpponentLeft: () => void,
   onGameState: (state: BroadcastGameState) => void,
   onGameEvent: (event: 'ready' | 'start' | 'over') => void,
@@ -71,7 +71,7 @@ export function createBattleChannel(
     .on('presence', { event: 'sync' }, () => {
       const state = channel.presenceState<PresenceUser>()
       const users = Object.values(state).flat().filter(u => u.userId !== userId)
-      if (users.length > 0) onOpponentJoined(users[0].nickname)
+      if (users.length > 0) onOpponentJoined(users[0].nickname, users[0].userId)
     })
     .on('presence', { event: 'leave' }, () => {
       onOpponentLeft()

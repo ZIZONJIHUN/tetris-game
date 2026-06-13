@@ -5,6 +5,7 @@ import { BroadcastGameState } from '@/game/types'
 import { useGame } from './useGame'
 import { createBattleChannel, sendGameState, sendGameEvent } from '@/lib/realtime'
 import { createClient } from '@/lib/supabase/client'
+import { finalizeGame, FinalizeGameResult } from '@/lib/leveling/finalize'
 
 const BATTLE_DURATION_MS = 2 * 60 * 1000 // 2분
 const SYNC_INTERVAL_MS = 100
@@ -31,6 +32,11 @@ export function useBattle(roomId: string) {
   const [result, setResult] = useState<BattleResult | null>(null)
   const [myNickname, setMyNickname] = useState('')
   const [userId, setUserId] = useState('')
+  const [finalizeResult, setFinalizeResult] = useState<FinalizeGameResult | null>(null)
+  const [finalizing, setFinalizing] = useState(false)
+  const [finalizeError, setFinalizeError] = useState<string | null>(null)
+  const [opponentId, setOpponentId] = useState<string>('')
+  const opponentIdRef = useRef<string>('')
 
   const channelRef = useRef<RealtimeChannel | null>(null)
   const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -60,7 +66,25 @@ export function useBattle(roomId: string) {
 
     if (syncIntervalRef.current) clearInterval(syncIntervalRef.current)
     if (timerRef.current) clearInterval(timerRef.current)
-  }, [])
+
+    setFinalizing(true)
+    const s = gameStateRef.current
+    finalizeGame(
+      {
+        mode: 'battle',
+        myScore: myFinalScore,
+        opponentScore: Math.max(0, opponentFinalScore),
+        totalLines: s.lines,
+        tetrisCount: s.tetrisCount,
+        maxCombo: s.maxCombo,
+        perfectClears: s.perfectClears,
+      },
+      roomId,
+      opponentIdRef.current || null,
+    )
+      .then(res => { setFinalizeResult(res); setFinalizing(false) })
+      .catch(err => { setFinalizeError(err.message ?? String(err)); setFinalizing(false) })
+  }, [roomId])
 
   const startCountdown = useCallback(() => {
     setPhase('countdown')
@@ -104,8 +128,10 @@ export function useBattle(roomId: string) {
 
     const channel = createBattleChannel(
       roomId, userId, myNickname,
-      (nick) => {
+      (nick, oppId) => {
         setOpponentNickname(nick)
+        setOpponentId(oppId)
+        opponentIdRef.current = oppId
         setOpponentConnected(true)
         if (disconnectTimeoutRef.current) clearTimeout(disconnectTimeoutRef.current)
         startCountdown()
@@ -150,5 +176,7 @@ export function useBattle(roomId: string) {
   return {
     gameState, actions, phase, countdown, timeLeft,
     myNickname, opponentNickname, opponentConnected, opponentState, result,
+    opponentId,
+    finalizeResult, finalizing, finalizeError,
   }
 }
